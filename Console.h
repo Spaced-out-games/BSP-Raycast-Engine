@@ -296,6 +296,7 @@ public:
     bool is_recording;
 
     virtual bool ExecuteCommand(const std::string& commandLine) override {
+        if (commandLine == "") { return 0; }
         auto spaceIndex = commandLine.find(' ');
         std::string command = commandLine.substr(0, spaceIndex);
         std::string args = (spaceIndex != std::string::npos) ? commandLine.substr(spaceIndex + 1) : "";
@@ -562,7 +563,7 @@ public:
             {
                 delta_position.z = 0;
             }
-            std::array<Brush_vertex_t, 8>& target_vertices = target_brush.get_vertices();
+            std::vector<Brush_vertex_t>& target_vertices = target_brush.get_vertices();
             for (int i = 0; i < 8; i++)
             {
                 target_vertices[i].position += delta_position;
