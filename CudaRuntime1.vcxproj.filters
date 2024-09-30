@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="VEditorController.h">
+      <Filter>include\GameIO</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>include\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>include\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>include\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>include\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>include\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_sdl2.cpp">
+      <Filter>include\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>include\GUI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader_manager.h">
+      <Filter>include\shader_system</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>include\shader_system</Filter>
+    </ClInclude>
+    <ClInclude Include="file_utils.h">
+      <Filter>include\FileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>include\GameIO</Filter>
+    </ClInclude>
+    <ClInclude Include="glm_utils.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>include\CameraSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="SIMD_float_128.h" />
+    <ClInclude Include="SIMD_float_256.h" />
+    <ClInclude Include="SIMD_float_512.h" />
+    <ClInclude Include="windowContent.h" />
+    <ClInclude Include="vBuffer.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="eBuffer.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_types.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="vArray.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="uBuffer.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_collection.h">
+      <Filter>include\shader_system</Filter>
+    </ClInclude>
+    <ClInclude Include="freecam.h">
+      <Filter>include\GameIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>include\GameIO</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp.h">
+      <Filter>include\bsp</Filter>
+    </ClInclude>
+    <ClInclude Include="bspnode.h">
+      <Filter>include\bsp</Filter>
+    </ClInclude>
+    <ClInclude Include="brush.h">
+      <Filter>include\bsp</Filter>
+    </ClInclude>
+    <ClInclude Include="shapes.h">
+      <Filter>include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="cube_demo.h">
+      <Filter>include\Applications</Filter>
+    </ClInclude>
+    <ClInclude Include="debug_utils.h">
+      <Filter>include\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="level_editor.h">
+      <Filter>include\Applications</Filter>
+    </ClInclude>
+    <ClInclude Include="level_editor_controller.h">
+      <Filter>include\GameIO</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{6cb8240e-62ec-493d-8bde-7510741d2484}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\physics">
+      <UniqueIdentifier>{5f994e85-ae96-4bc2-a233-f994b5aafadc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\GUI">
+      <UniqueIdentifier>{a0f283a9-3dba-4b0c-9cb8-8e6a634829f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\shader_system">
+      <UniqueIdentifier>{2bd8721c-7baf-4155-aabc-120cd24fbfee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Geometry">
+      <UniqueIdentifier>{2023fcf8-b23e-4207-a1e5-6bf6decb0cb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\CameraSystem">
+      <UniqueIdentifier>{85c2abdd-ec76-4b21-842d-932948453efe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{7c00b9b6-8e36-4c57-871b-290fff5d7c3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\GameIO">
+      <UniqueIdentifier>{59c3b2d2-5130-4fdf-9721-d39e42a95ea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\FileIO">
+      <UniqueIdentifier>{d1371336-2731-4c35-a8bb-60929ef74f6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Core">
+      <UniqueIdentifier>{d2206abb-5c90-4957-bd0b-3d3c5ff7006c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ComputeEngine">
+      <UniqueIdentifier>{1cc5bba6-2750-4b5f-a544-e14421cf15b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\debug">
+      <UniqueIdentifier>{bbc4454f-242e-4a87-82a3-cc204ee91c2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\bsp">
+      <UniqueIdentifier>{c0707b7e-ae43-418f-bdee-cd5ed54a275c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Applications">
+      <UniqueIdentifier>{4e254028-d939-41e4-99eb-685160622c09}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="test_config.cfg" />
+    <None Include="resources\shaders\Bricks_001_frag.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\Bricks_001_vtx.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\brush_frag.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\brush_vertex.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\frag.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\solid_color.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\tex3d_shader_frag.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\tex3d_shader_vtx.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\tex3d_shader_vtx_transformed.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="resources\shaders\vtx.glsl">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
