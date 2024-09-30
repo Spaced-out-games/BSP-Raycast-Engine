@@ -16,8 +16,8 @@ out vec3 WorldPos;   // World position passed to the fragment shader
 //out vec2 uv;
 flat out uint matID;
 void main() {
-    WorldPos = aPos ;
-    gl_Position = projection * view * vec4(aPos + UV_offset_position, 1.0) ;
+    WorldPos = aPos;
+    gl_Position = projection * view * vec4(aPos + UV_offset_position, 1.0);
     matID = material_ID;
     Normal = aNormal;
     //uv = normalized_position.yz;

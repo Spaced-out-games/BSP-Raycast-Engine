@@ -9,9 +9,9 @@ uniform sampler2D texture1;  // Texture sampler
 uniform vec3 lightPos;       // Position of the light source
 const float num_textures_horizontal = 3.0;  // Number of textures in a row
 const float num_textures_vertical = 3.0;    // Number of textures in a column
-const float lightMultiplier = 1.0;          // Light intensity multiplier
+const float lightMultiplier = 1.4;          // Light intensity multiplier
 const float distanceFactor = 1.0 / 20.0;    // Distance factor for falloff
-
+uniform vec3 UV_offset_position;
 // Function to calculate triplanar texture coordinates
 vec4 sampleTriplanar(in vec3 worldPos, in vec3 normal) {
     // Normalize the normal vector
@@ -56,15 +56,15 @@ vec4 sampleTriplanar(in vec3 worldPos, in vec3 normal) {
 
 // Function to calculate light intensity
 float calculateLightIntensity(vec3 normal, vec3 worldPos) {
-    return 1.0f;
+    //return 1.0f;
     // Calculate the light direction and distance
-    //vec3 lightDir = normalize(lightPos - worldPos);
-    //float distance = length(lightPos - worldPos);
+    vec3 lightDir = normalize(lightPos - worldPos - UV_offset_position);
+    float distance = length(lightPos -worldPos - UV_offset_position);
 
     // Calculate light intensity with distance falloff (inverse square law)
-    //float lightIntensity = dot(normal, lightDir) * lightMultiplier;
+    float lightIntensity = dot(normal, lightDir) * lightMultiplier;
 
-    //return lightIntensity;
+    return lightIntensity;
 }
 
 void main() {
