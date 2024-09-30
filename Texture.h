@@ -29,6 +29,10 @@ public:
         glTexParameteri(TextureType, GL_TEXTURE_MIN_FILTER, MinFilter);
         glTexParameteri(TextureType, GL_TEXTURE_MAG_FILTER, MagFilter);
 
+        GLfloat maxAniso;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, maxAniso);
+
         // Load image
         int width, height, nrChannels;
         unsigned char* data = stbi_load(filePath, &width, &height, &nrChannels, 0);
