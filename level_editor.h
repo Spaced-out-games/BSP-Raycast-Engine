@@ -51,8 +51,6 @@ public:
     
     void gl_tick() override {
 
-
-
         auto& camera = getCustomState().camController->getPawn();
         auto& controller = getCustomState().camController;
 
@@ -93,7 +91,8 @@ public:
         getCustomState().camController->getPawn().updateUBO();
 
         draw_brushes();
-
+        //console.ExecuteCommand("exec test_config.cfg");
+        Brush::shader.setUniform("UV_offset_position", glm::vec3(0, getCustomState().t, 0));
 
         //if (getCustomState().camController->marked_for_processing)
        // {
@@ -198,7 +197,7 @@ public:
 
 
         };
-        //getCustomState().cube.init(cube_vertices, sizeof(cube_vertices) / sizeof(vtx_3d_tex), cube_indices, sizeof(cube_indices) / sizeof(GLuint), "tex3d_shader_vtx_transformed.glsl", "tex3d_shader_frag.glsl", "Bricks_001.jpg");
+        getCustomState().cube.init(cube_vertices, sizeof(cube_vertices) / sizeof(vtx_3d_tex), cube_indices, sizeof(cube_indices) / sizeof(GLuint), "tex3d_shader_vtx_transformed.glsl", "tex3d_shader_frag.glsl", "Bricks_001.jpg");
 
         console.target_application = &(getCustomState());
         console.open = &(getCustomState().input_to_imgui);
@@ -213,13 +212,21 @@ public:
 
         // Bind it to slot 0
         getCustomState().camController->getPawn().getUBO().bindBase(0);
-        getCustomState().camController->getPawn().setPosition({ 0, 1, 0 });
+        getCustomState().camController->getPawn().setPosition({ 0, 5, 0 });
         brush_setup();
 
         // TODO: Make add_brush's first arguments be relative to player when using ~, and second arguments can be exact position, direct dimensions with accent
 
         //getCustomState().brushes.push_back({{ -5, 0, -5 }, { 10, 0.1, 10}});
-        console.ExecuteCommand("add_brush -5 0 -5 10 0.1 10");     
+        console.ExecuteCommand("add_brush -5 0 -5 ~10 ~0.1 ~10");
+        glm::vec3 a(0, 1, 0);
+        //getCustomState().brushes[0].extrude_triangle(a, 0, 1, 2, 0.5);
+        //console.ExecuteCommand("exec test_config.cfg");
+
+        //auto& a = getCustomState().brushes[0].get_vertices();
+
+        //a[5].material_ID = 1;
+        //getCustomState().brushes[0].update_vertices(a);
         //add_brush({ -5,0,-5 }, { 10,0.1 ,10 });
         //add_brush({ 0,0,1 }, { 1,1,1 });
 
