@@ -571,6 +571,10 @@ public:
             target_brush.update_vertices(target_vertices);
 
         }, "Exits the application.\nUsage: exit Y/N");
+
+        RegisterCommand("set_mat", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
+            exit(64);
+        }, "Sets the material of a face");
     }
 };
 
