@@ -5,14 +5,19 @@
 #include "shapes.h"
 #include <array>
 
-typedef struct nBrush_triangle
+typedef struct brush_edge
+{
+    glm::vec3 edge_points[2];
+};
+
+typedef struct brush_triangle
 {
     glm::vec3 points[3];
     glm::vec3 normal;  // Default initialization will be done in the constructor.
     uint16_t material_ID;
 
     // Constructor to initialize normal and material_ID
-    nBrush_triangle() : normal(0.0f, 0.0f, 0.0f), material_ID(0) {}
+    brush_triangle() : normal(0.0f, 0.0f, 0.0f), material_ID(0) {}
 
     void move(const glm::vec3& offset)
     {
@@ -20,11 +25,54 @@ typedef struct nBrush_triangle
         points[1] += offset;
         points[2] += offset;
     }
-} nBrush_triangle;
+    brush_edge[3] get_edges()
+    {
+        brush_edge edges[3];
+    }
+} brush_triangle;
+
+
+typedef struct brush_edge_reference
+{
+    uint16_t point_indices[2];
+};
+
+// Stores a reference to a triangle. Would be great to make a function that takes in std::vector <brush_triangle_reference> and outputs the polygonal data of a triangle-stripped mesh
+// At the very least, let there be a method that sets up a Brush and returns it
+typedef struct brush_triangle_reference
+{
+    uint16_t point_indices[3];
+    uint16_t normal_index;
+    uint16_t material_ID;
+
+    // Having it be a function also ensures that data is set up properly
+    brush_edge_reference[3] get_edges()
+    {
+        brush_edge_reference edges[3];
+        edges[0] = { point_indices[0], point_indices[1] };
+        edges[1] = { point_indices[1], point_indices[2] };
+        edges[2] = { point_indices[2], point_indices[0] };
+        return edges;
+
+
+    }
+};
 
 
 
-
+// Stores the polygonal data of ONE brush
+typedef struct brush_poly_data
+{
+    std::vector<glm::vec3> points;
+    std::vector < glm::vec3> normals;
+    uint16_t material_ID;
+    std::vector <brush_triangle_reference> triangle_references;
+    brushlist(std::vector<brush_triangle>)
+    {
+        // Make the point cloud
+        // Make the triangle references
+    }
+};
 
 
 
@@ -51,7 +99,7 @@ public:
         glGenBuffers(1, &VBO_materials);
         createCube();
     }
-    nBrush(const std::vector<nBrush_triangle>& triangles) {};
+    nBrush(const std::vector<Brush_triangle>& triangles) {};
     ~nBrush() {
         disable_edit();  // Ensure that editing is disabled and the buffer is unmapped before deletion.
         if (VAO != 0) {
@@ -181,7 +229,7 @@ public:
         GLuint VAO;
         GLuint VBO; // Unified VBO
         GLuint materialVBO;
-        std::vector<nBrush_triangle> triangles; // Store triangles in a vector. MAKE A METHOD TO GET A REFERENCE TO THIS
+        std::vector<Brush_triangle> triangles; // Store triangles in a vector. MAKE A METHOD TO GET A REFERENCE TO THIS
         bool isEditable; // Flag to track if the VBO is currently mapped for editing
 
         void setupVBO() {
@@ -198,7 +246,7 @@ public:
             size_t vertexIndex = 0;
 
             for (size_t i = 0; i < numTriangles; ++i) {
-                const nBrush_triangle& triangle = triangles[i];
+                const Brush_triangle& triangle = triangles[i];
 
                 // Add triangle vertices to the buffer
                 for (int j = 0; j < 3; ++j) {
@@ -240,7 +288,7 @@ public:
         }
         void createCube() {
             // Define the vertices of the cube
-            nBrush_triangle cubeTriangles[12];
+            Brush_triangle cubeTriangles[12];
 
             glm::vec3 vertices[8] = {
                 { -1.0f, -1.0f, -1.0f }, // 0: Back bottom left
