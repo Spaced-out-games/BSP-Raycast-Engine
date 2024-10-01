@@ -112,6 +112,9 @@
     <ClInclude Include="level_editor_controller.h">
       <Filter>include\GameIO</Filter>
     </ClInclude>
+    <ClInclude Include="newbrush.h">
+      <Filter>include\bsp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">

@@ -37,6 +37,7 @@
     <ClInclude Include="freecam.h" />
     <ClInclude Include="level_editor.h" />
     <ClInclude Include="level_editor_controller.h" />
+    <ClInclude Include="newbrush.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="shader_collection.h" />
     <ClInclude Include="SIMD_float_128.h" />
