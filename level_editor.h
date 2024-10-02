@@ -5,7 +5,6 @@
 #include "Console.h"
 
 
-glm::vec3 parse_vec3_from_stringstream(glm::vec3& offset, std::stringstream& stream);
 void FocusConsoleWindow() {
     
 }
@@ -92,7 +91,7 @@ public:
 
         draw_brushes();
         //console.ExecuteCommand("exec test_config.cfg");
-        Brush::shader.setUniform("UV_offset_position", glm::vec3(0, getCustomState().t, 0));
+        //brush::shader.setUniform("UV_offset_position", glm::vec3(0, getCustomState().t, 0));
 
         //if (getCustomState().camController->marked_for_processing)
        // {
@@ -219,7 +218,8 @@ public:
 
         //getCustomState().brushes.push_back({{ -5, 0, -5 }, { 10, 0.1, 10}});
         console.ExecuteCommand("add_brush -5 0 -5 ~10 ~0.1 ~10");
-        glm::vec3 a(0, 1, 0);
+        //brush B(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+        getCustomState().brushes.emplace_back(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
         //getCustomState().brushes[0].extrude_triangle(a, 0, 1, 2, 0.5);
         //console.ExecuteCommand("exec test_config.cfg");
 
@@ -245,7 +245,7 @@ public:
         // Loop through existing brushes
         for (size_t i = 0; i < initial_size; ++i) {
 
-            brushes[i].prepare_for_draw();
+            //brushes[i].prepare_for_draw();
             brushes[i].draw();
 
         }
