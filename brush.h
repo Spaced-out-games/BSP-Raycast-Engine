@@ -337,10 +337,8 @@ void brush_setup()
 {
     Brush::shader.initFromFiles("resources/shaders/brush_vertex.glsl", "resources/shaders/brush_frag.glsl");
     Brush::shader.use();
-    GLfloat maxAniso;
-    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso);
+    //GLfloat maxAniso;
+    //glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso);
     Brush::texture.loadFromFile("resources/images/atlas.png");
-    //Brush::texture.bind();
-    //Brush::texture.TextureID;
     
 }
