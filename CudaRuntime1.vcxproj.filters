@@ -115,6 +115,9 @@
     <ClInclude Include="newbrush.h">
       <Filter>include\bsp</Filter>
     </ClInclude>
+    <ClInclude Include="my-brush.h">
+      <Filter>include\bsp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
