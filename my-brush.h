@@ -10,25 +10,32 @@
 
 using point_cloud = std::vector<glm::vec3>;
 
+
+inline glm::vec3 generate_normal(std::array<glm::vec3, 3> vertices) // Pass by value
+{
+    // Assume vertices are defined in a counterclockwise order
+    glm::vec3 edge1 = vertices[1] - vertices[0];
+    glm::vec3 edge2 = vertices[2] - vertices[0];
+
+    // Compute the cross product of edge1 and edge2
+    glm::vec3 normal = glm::cross(edge1, edge2);
+
+    // Normalize the normal vector
+    normal = glm::normalize(normal);
+
+    return normal;
+}
+
+
 typedef struct brush_triangle
 {
-	glm::vec3 vertices[3];
+    std::array<glm::vec3, 3> vertices;
     uint16_t material_ID;
     brush_triangle(glm::vec3 p1 = {0,0,0}, glm::vec3 p2 = { 0,0,0 }, glm::vec3 p3 = { 0,0,0 }, uint16_t matID = 0): vertices{p1,p2,p3}, material_ID(matID) {}
 
 	glm::vec3 get_normal()
     {
-        // Assume vertices are defined in a counterclockwise order
-        glm::vec3 edge1 = vertices[1] - vertices[0];
-        glm::vec3 edge2 = vertices[2] - vertices[0];
-
-        // Compute the cross product of edge1 and edge2
-        glm::vec3 normal = glm::cross(edge1, edge2);
-
-        // Normalize the normal vector
-        normal = glm::normalize(normal);
-
-        return normal;
+        return generate_normal(vertices);
     }
     uint16_t get_material() { return material_ID; }
 
@@ -43,18 +50,12 @@ typedef struct brush_triangle_reference
 
     glm::vec3 get_normal(point_cloud& points) const
     {
+        return generate_normal({
+            points[point_indices[0]],
+            points[point_indices[1]],
+            points[point_indices[2]],
 
-        // Assume vertices are defined in a counterclockwise order
-        glm::vec3 edge1 = points[point_indices[1]] - points[point_indices[0]];
-        glm::vec3 edge2 = points[point_indices[2]] - points[point_indices[0]];
-
-        // Compute the cross product of edge1 and edge2
-        glm::vec3 normal = glm::cross(edge1, edge2);
-
-        // Normalize the normal vector
-        normal = glm::normalize(normal);
-
-        return normal;
+        })
     }
     uint16_t get_material() { return material_ID; }
 };
@@ -125,26 +126,92 @@ struct brush_edge_reference {
 typedef struct brush_model
 {
     GLuint VAO = 0;
-    GLuint vertex_VBO = 0;
-    GLuint material_VBO = 0;
-    GLuint triangle_VBO = 0;
-
-    GLuint triangle_EBO = 0;
+    GLuint VBO = 0;  // Point cloud
     GLuint wireframe_EBO = 0;
+    GLuint solid_EBO = 0;
+
+    // Method to prepare for wireframe rendering
+    void prepare_for_wireframe_draw()
+    {
+        // Bind VAO
+        glBindVertexArray(VAO);
+
+        // Bind the wireframe EBO
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wireframe_EBO);
+    }
+
+    // Method to prepare for solid rendering
+    void prepare_for_solid_draw()
+    {
+        // Bind VAO
+        glBindVertexArray(VAO);
+
+        // Bind the solid EBO
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, solid_EBO);
+    }
+
+    // Method to draw the solid geometry
+    void draw_solid()
+    {
+        prepare_for_solid_draw(); // Ensure solid mode is prepared
+
+        // Issue draw call for triangles
+        glDrawElements(GL_TRIANGLES, get_solid_triangle_count() * 3, GL_UNSIGNED_SHORT, 0);
+
+        // Unbind VAO
+        glBindVertexArray(0);
+    }
+
+    // Method to draw the wireframe
+    void draw_wireframe()
+    {
+        prepare_for_wireframe_draw();  // Ensure wireframe mode is prepared
+
+        // Issue draw call for lines
+        glDrawElements(GL_LINES, get_wireframe_edge_count() * 2, GL_UNSIGNED_SHORT, 0);
+
+        // Unbind VAO
+        glBindVertexArray(0);
+    }
+
+    // Helper to get the number of triangles for solid rendering
+    GLsizei get_solid_triangle_count() const
+    {
+        // Assumes each triangle has 3 vertices, and the EBO has size corresponding to this
+        return solid_EBO_size / sizeof(uint16_t) / 3;  // Adjust `solid_EBO_size` accordingly
+    }
+
+    // Helper to get the number of edges for wireframe rendering
+    GLsizei get_wireframe_edge_count() const
+    {
+        // Assumes each edge has 2 vertices, and the EBO has size corresponding to this
+        return wireframe_EBO_size / sizeof(uint16_t) / 2;  // Adjust `wireframe_EBO_size` accordingly
+    }
+
+    // Destroy resources
     void destroy()
     {
-        //disable_edit();  // Ensure that editing is disabled and the buffer is unmapped before deletion.
         if (VAO != 0) {
             glDeleteVertexArrays(1, &VAO);
         }
-        if (vertex_VBO != 0) {
-            glDeleteBuffers(1, &vertex_VBO);
+        if (VBO != 0) {
+            glDeleteBuffers(1, &VBO);
         }
-        if (material_VBO != 0) {
-            glDeleteBuffers(1, &material_VBO);
+        if (solid_EBO != 0) {
+            glDeleteBuffers(1, &solid_EBO);
+        }
+        if (wireframe_EBO != 0) {
+            glDeleteBuffers(1, &wireframe_EBO);
         }
     }
+
+    // Size of the EBOs (used to calculate draw calls)
+    GLsizei solid_EBO_size = 0;
+    GLsizei wireframe_EBO_size = 0;
 };
+
+
+
 struct TriangleData {
     glm::vec3 vertices[3]; // Vertices of the triangle
     glm::vec3 normal;      // Normal of the triangle
@@ -157,6 +224,14 @@ struct TriangleData {
         vertices[0] = v0;
         vertices[1] = v1;
         vertices[2] = v2;
+    }
+
+    TriangleData(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,, uint16_t materialID)
+        : materialID(materialID) {
+        vertices[0] = v0;
+        vertices[1] = v1;
+        vertices[2] = v2;
+        normal = get_normal(a, b, c);
     }
 };
 
@@ -198,6 +273,7 @@ public:
     }
 
     // Constructor to create a cuboid given start and stop points
+    // Constructor to create a cuboid given start and stop points
     brush(const glm::vec3& start, const glm::vec3& stop)
     {
         // Define the corners of the cuboid
@@ -225,23 +301,17 @@ public:
         // Define the triangles with indices into the point cloud
         std::vector<brush_triangle_reference> cuboid_triangles = {
             // Front face
-            {0, 1, 3},
-            {0, 3, 2},
+            {0, 1, 3}, {0, 3, 2},
             // Back face
-            {4, 5, 7},
-            {4, 7, 6},
+            {4, 5, 7}, {4, 7, 6},
             // Left face
-            {0, 4, 6},
-            //{0, 6, 2},
+            {0, 4, 6}, {0, 6, 2},
             // Right face
-            //{1, 3, 7},
-            //{1, 7, 5},
+            {1, 3, 7}, {1, 7, 5},
             // Top face
-            //{2, 3, 7},
-            //{2, 7, 6},
+            {2, 3, 7}, {2, 7, 6},
             // Bottom face
-            //{0, 1, 5},
-            //{0, 5, 4}
+            {0, 1, 5}, {0, 5, 4}
         };
 
         // Initialize triangles with the cuboid triangles
@@ -250,12 +320,13 @@ public:
             triangles.push_back(triangle_ref);
         }
 
-        // Store the points in the brush instance (assuming you have a member variable for points)
+        // Store the points in the brush instance
         this->points = std::move(points);
 
         // Create the model using the triangles
         model = make_model();
     }
+
 
     // Constructor to initialize brush with a vector of triangles
     brush(const std::vector<brush_triangle_reference>& input_triangles, point_cloud points)
@@ -264,6 +335,7 @@ public:
         // Create the model using the provided triangles
         model = make_model();
     }
+
 
     // Move constructor
     brush(brush&& other) noexcept
@@ -466,72 +538,6 @@ public:
         brush_triangle get_triangle(uint16_t p1_idx, uint16_t p2_idx, uint16_t p3_idx)  {    return (points[p1_idx], points[p2_idx], points[p3_idx]);   }
         brush_triangle get_triangle(size_t brush_triangle_index)    {    return get_triangle(triangles[brush_triangle_index]);  }
 
-        brush_model make_model() {
-            brush_model model;
-
-            size_t num_triangles = triangles.size();
-            std::vector<TriangleData> triangle_data; // Vector to store triangle data
-            triangle_data.reserve(num_triangles); // Reserve space for efficiency
-
-            // Fill the triangle_data vector
-            for (size_t i = 0; i < num_triangles; ++i) {
-                const brush_triangle_reference& triangle_ref = triangles[i];
-                const glm::vec3& v0 = points[triangle_ref.point_indices[0]];
-                const glm::vec3& v1 = points[triangle_ref.point_indices[1]];
-                const glm::vec3& v2 = points[triangle_ref.point_indices[2]];
-
-                // Calculate face normal
-                glm::vec3 face_normal = triangle_ref.get_normal(points);
-
-                // Create TriangleData and add it to the vector
-                triangle_data.emplace_back(v0, v1, v2, face_normal, triangle_ref.material_ID);
-            }
-
-            // -----------------------------------Unified Vertex Buffer Object (VBO)----------------------------------
-            // Buffer for vertex data: positions, normals, and material IDs
-            std::vector<float> vertex_data;
-            vertex_data.reserve(num_triangles * (3 * 3 + 3 + 1)); // 3 vertices (3 floats each), 1 normal (3 floats), and 1 material ID (1 float)
-
-            for (const auto& triangle : triangle_data) {
-                // Store vertex positions
-                for (const auto& vertex : triangle.vertices) {
-                    vertex_data.push_back(vertex.x);
-                    vertex_data.push_back(vertex.y);
-                    vertex_data.push_back(vertex.z);
-                }
-                // Store face normal
-                vertex_data.push_back(triangle.normal.x);
-                vertex_data.push_back(triangle.normal.y);
-                vertex_data.push_back(triangle.normal.z);
-                // Store material ID (cast to float)
-                vertex_data.push_back(static_cast<float>(triangle.materialID));
-            }
-
-            glGenBuffers(1, &(model.triangle_VBO));
-            glBindBuffer(GL_ARRAY_BUFFER, model.triangle_VBO);
-            glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(float), vertex_data.data(), GL_STATIC_DRAW);
-
-            // Set up vertex attributes
-            // 3 floats for vertex positions (9 floats for 3 vertices)
-            glEnableVertexAttribArray(0); // Vertex position attribute index 0
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TriangleData), (void*)0);
-            // Point to 3 glm::vec3's for the positions
-
-            glEnableVertexAttribArray(1); // Normal attribute index 1
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TriangleData), (void*)(3 * sizeof(glm::vec3)));
-            // Point to 1 glm::vec3 for the normal
-
-            glEnableVertexAttribArray(2); // Material ID attribute index 2
-            glVertexAttribPointer(2, 1, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(TriangleData), (void*)(3 * sizeof(glm::vec3) + sizeof(glm::vec3)));
-            // Point to 1 uint16_t for the material ID
-
-            // void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
-
-            // Unbind VBO
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-            return model;
-        }
 
 
 
@@ -542,6 +548,133 @@ public:
 Shader brush::shader;
 Texture<GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR> brush::texture;
 bool brush::r_wireframe = false;
+
+brush_model make_brush_model(TriangleData* triangle_data, size_t triangle_count)
+{
+    // Create a new brush model
+    brush_model B;
+
+    // Step 1: Create unique points, normals, and material IDs
+    std::unordered_map<glm::vec3, uint16_t, glm::vec3> unique_points_map;
+    std::unordered_map<glm::vec3, uint16_t, glm::vec3> unique_normals_map;
+    point_cloud unique_points;
+    point_cloud unique_normals;
+
+    // Step 2: Prepare triangle indices
+    std::vector<brush_triangle_reference> triangle_indices;
+
+    for (size_t i = 0; i < triangle_count; ++i) {
+        const TriangleData& data = triangle_data[i];
+        uint16_t new_indices[3];
+
+        for (int j = 0; j < 3; ++j) {
+            glm::vec3 point = data.positions[j];
+            if (unique_points_map.find(point) == unique_points_map.end()) {
+                // New unique point
+                unique_points_map[point] = unique_points.size();
+                unique_points.push_back(point);
+            }
+            new_indices[j] = unique_points_map[point];
+
+            glm::vec3 normal = data.normals[j];
+            if (unique_normals_map.find(normal) == unique_normals_map.end()) {
+                // New unique normal
+                unique_normals_map[normal] = unique_normals.size();
+                unique_normals.push_back(normal);
+            }
+        }
+
+        triangle_indices.emplace_back(new_indices[0], new_indices[1], new_indices[2], data.material_ID);
+    }
+
+    // Step 3: Remove duplicate triangle references
+    std::set<std::array<uint16_t, 3>> unique_triangles;
+    std::vector<brush_triangle_reference> dedup_triangles;
+    for (auto& tri_ref : triangle_indices) {
+        std::array<uint16_t, 3> sorted_indices = { tri_ref.point_indices[0], tri_ref.point_indices[1], tri_ref.point_indices[2] };
+        std::sort(sorted_indices.begin(), sorted_indices.end());
+        if (unique_triangles.find(sorted_indices) == unique_triangles.end()) {
+            unique_triangles.insert(sorted_indices);
+            dedup_triangles.push_back(tri_ref);
+        }
+    }
+    triangle_indices = std::move(dedup_triangles);
+
+    // Step 4: Using these data, generate the VAO, VBO, and EBOs
+    glGenVertexArrays(1, &B.VAO);
+    glBindVertexArray(B.VAO);
+
+    // Create and populate the VBO for positions
+    glGenBuffers(1, &B.VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, B.VBO);
+    glBufferData(GL_ARRAY_BUFFER, unique_points.size() * sizeof(glm::vec3), unique_points.data(), GL_STATIC_DRAW);
+
+    // Enable vertex attribute for positions
+    glEnableVertexAttribArray(0); // Attribute 0 for positions
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0); // Positions (3 floats)
+
+    // Create and populate the VBO for normals
+    glGenBuffers(1, &B.normal_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, B.normal_VBO);
+    glBufferData(GL_ARRAY_BUFFER, unique_normals.size() * sizeof(glm::vec3), unique_normals.data(), GL_STATIC_DRAW);
+
+    // Enable vertex attribute for normals
+    glEnableVertexAttribArray(1); // Attribute 1 for normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0); // Normals (3 floats)
+
+    // Create and populate the VBO for material IDs
+    std::vector<uint16_t> material_ids;
+    for (const auto& tri_ref : triangle_indices) {
+        material_ids.push_back(tri_ref.material_ID);
+    }
+
+    glGenBuffers(1, &B.material_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, B.material_VBO);
+    glBufferData(GL_ARRAY_BUFFER, material_ids.size() * sizeof(uint16_t), material_ids.data(), GL_STATIC_DRAW);
+
+    // Enable vertex attribute for material IDs
+    glEnableVertexAttribArray(2); // Attribute 2 for material IDs
+    glVertexAttribPointer(2, 1, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(uint16_t), (void*)0); // Material IDs
+
+    // Generate the solid EBO (for solid rendering)
+    std::vector<uint16_t> solid_indices;
+    for (const auto& tri_ref : triangle_indices) {
+        solid_indices.push_back(tri_ref.point_indices[0]);
+        solid_indices.push_back(tri_ref.point_indices[1]);
+        solid_indices.push_back(tri_ref.point_indices[2]);
+    }
+    glGenBuffers(1, &B.solid_EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, B.solid_EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, solid_indices.size() * sizeof(uint16_t), solid_indices.data(), GL_STATIC_DRAW);
+
+    // Generate the wireframe EBO (for wireframe rendering)
+    std::set<std::pair<uint16_t, uint16_t>> unique_edges;
+    for (const auto& tri_ref : triangle_indices) {
+        std::array<uint16_t, 3> indices = { tri_ref.point_indices[0], tri_ref.point_indices[1], tri_ref.point_indices[2] };
+        for (int j = 0; j < 3; ++j) {
+            uint16_t p1 = indices[j];
+            uint16_t p2 = indices[(j + 1) % 3];  // Wrap around to form a triangle
+            if (p1 > p2) std::swap(p1, p2);      // Order the pair to avoid duplicates
+            unique_edges.insert({ p1, p2 });
+        }
+    }
+
+    // Generate wireframe EBO
+    std::vector<uint16_t> wireframe_indices;
+    for (const auto& edge : unique_edges) {
+        wireframe_indices.push_back(edge.first);
+        wireframe_indices.push_back(edge.second);
+    }
+    glGenBuffers(1, &B.wireframe_EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, B.wireframe_EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, wireframe_indices.size() * sizeof(uint16_t), wireframe_indices.data(), GL_STATIC_DRAW);
+
+    // Unbind the VAO
+    glBindVertexArray(0);
+
+    return B;  // Return the generated brush model
+}
+
 
 
 void brush_setup()

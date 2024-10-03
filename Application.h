@@ -2,7 +2,7 @@
 #define SDL_MAIN_HANDLED
 
 
-#define CULL
+//#define CULL
 #include <SDL.h>
 #include <glm/glm.hpp>
 #include <GL/glew.h>
