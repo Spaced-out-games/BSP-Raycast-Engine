@@ -118,6 +118,9 @@
     <ClInclude Include="my-brush.h">
       <Filter>include\bsp</Filter>
     </ClInclude>
+    <ClInclude Include="brush-iter3.h">
+      <Filter>include\bsp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">

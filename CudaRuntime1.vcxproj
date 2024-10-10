@@ -26,6 +26,7 @@
     <ClCompile Include="VEditorController.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="brush-iter3.h" />
     <ClInclude Include="brush.h" />
     <ClInclude Include="bsp.h" />
     <ClInclude Include="bspnode.h" />
