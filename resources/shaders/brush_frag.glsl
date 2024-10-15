@@ -1,17 +1,33 @@
-#version 330 core
+#version 430 core
 
 out vec4 FragColor;  // Output color
-flat in uint matID;  // Input material ID
-flat in vec3 Normal; // Normal vector from the vertex shader
-in vec3 WorldPos;    // Input world position from vertex shader
+//flat in uint matID;  // Input material ID
+//flat in vec3 Normal; // Normal vector from the vertex shader
+in vec3 worldPos;    // Input world position from vertex shader
 
 uniform sampler2D texture1;  // Texture sampler
-uniform vec3 lightPos;       // Position of the light source
+in float t;
+in float dt;
+//uniform 
+vec3 lightPos = vec3(0.0,dt,0.0);       // Position of the light source
+struct brush_face {
+    vec3 normal;          // Matches glm::vec3
+    uint material_ID;     // Use 'uint' instead of 'uint16_t' in GLSL
+};
+layout(std430, binding = 0) buffer MySSBO {
+
+
+    brush_face faces[];        // Array of BrushFace structs
+};
+uint matID = faces[gl_PrimitiveID].material_ID;
+vec3 Normal = faces[gl_PrimitiveID].normal;
+
 const float num_textures_horizontal = 3.0;  // Number of textures in a row
 const float num_textures_vertical = 3.0;    // Number of textures in a column
 const float lightMultiplier = 1.4;          // Light intensity multiplier
 const float distanceFactor = 1.0 / 20.0;    // Distance factor for falloff
-uniform vec3 UV_offset_position;
+//uniform 
+vec3 UV_offset_position = vec3(0.0,0.0,0.0);
 // Function to calculate triplanar texture coordinates
 vec4 sampleTriplanar(in vec3 worldPos, in vec3 normal) {
     // Normalize the normal vector
@@ -72,7 +88,7 @@ void main() {
     vec3 norm = normalize(Normal);
 
     // Calculate light intensity
-    float lightIntensity = calculateLightIntensity(norm, WorldPos);
+    float lightIntensity = calculateLightIntensity(norm, worldPos);
 
     // Define base and shaded colors
     vec3 baseColor = vec3(0.5);
@@ -82,7 +98,7 @@ void main() {
     vec3 finalColor = mix(baseColor, shadedColor, lightIntensity);
 
     // Sample the texture using triplanar mapping
-    vec4 textureColor = sampleTriplanar(WorldPos, norm);
+    vec4 textureColor = sampleTriplanar(worldPos, norm);
 
     // Final color output, combining texture color with the lerped final color
     FragColor = textureColor * vec4(finalColor, 1.0);
