@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <iostream>
 
-template <GLenum Usage = GL_STATIC_DRAW, GLsizeiptr Size = 128>
+template <GLenum Usage = GL_STATIC_DRAW, GLsizeiptr Size = 132>
 class uBuffer {
 public:
     uBuffer() : bufferID(0), bufferSize(0) {}
