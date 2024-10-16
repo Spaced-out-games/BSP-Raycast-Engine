@@ -11,10 +11,11 @@ layout(std140) uniform CameraUBO{
     float time;
     float delta_time;
 };
-
+uniform int glPrimitiveType;
 out vec3 worldPos;      // World position passed to the fragment shader
 out float t;
 out float dt;
+flat out int primType;
 //flat out vec3 Normal;   // Normal vector passed to the fragment shader
 //flat out uint matID;    // Material ID passed to the fragment shader
 
@@ -27,6 +28,7 @@ void main() {
     //matID = aMaterialID;                // Pass the material ID to the fragment shader
     t = time;
     dt = delta_time;
+    primType = glPrimitiveType;
     // Calculate the final position using the view and projection matrices
     gl_Position = projection * view * vec4(worldPos, 1.0); // Transform position to clip space
 }

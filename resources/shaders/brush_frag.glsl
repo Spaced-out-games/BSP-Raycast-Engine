@@ -4,7 +4,7 @@ out vec4 FragColor;  // Output color
 //flat in uint matID;  // Input material ID
 //flat in vec3 Normal; // Normal vector from the vertex shader
 in vec3 worldPos;    // Input world position from vertex shader
-
+flat in int primType;
 uniform sampler2D texture1;  // Texture sampler
 in float t;
 in float dt;
@@ -84,6 +84,12 @@ float calculateLightIntensity(vec3 normal, vec3 worldPos) {
 }
 
 void main() {
+    if (primType == 0)
+    {
+        FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        return;
+    }
+
     // Normalize the normal vector
     vec3 norm = normalize(Normal);
 

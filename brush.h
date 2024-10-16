@@ -47,7 +47,7 @@ typedef struct Brush
 {
     static Shader shader;
     static Texture<GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR> texture;
-    static bool r_wireframe;
+    static int r_wireframe;
     GLuint VAO;
     GLuint vertex_VBO;
     GLuint face_SSBO; // stores a brush_face[]
@@ -171,26 +171,43 @@ typedef struct Brush
 
         // Bind the texture (if you're using textures)
         texture.bind();
-
+        int w = (int)r_wireframe;
         // Draw the solid faces using the Element Buffer Object (EBO)
-        glDrawElements(GL_TRIANGLES, triangles.size() * 3, GL_UNSIGNED_INT, 0);
+        //shader.setUniform("glPrimitiveType", w);
+        if (r_wireframe)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDrawElements(GL_TRIANGLES, triangles.size() * 3, GL_UNSIGNED_INT, 0);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to filled polygon
+        }
+        else
+        {
+            
+            glDrawElements(GL_TRIANGLES, triangles.size() * 3, GL_UNSIGNED_INT, 0);
+        }
+        //
 
         // Optionally, if you want to draw wireframe as well
-        /*
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDrawElements(GL_TRIANGLES, triangles.size() * 3, GL_UNSIGNED_INT, 0);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to filled polygon
-        */
+        ///*
+
+        //*/
 
         // Unbind the VAO and texture
         glBindVertexArray(0);
         texture.unbind(); // Assuming you have a method to unbind the texture
     }
+
+    // todo: make it actually set the right uniforms for the vertex shader (so that the fragment shader outputs pure green when in wireframe)
+    static void set_wireframe_mode(int mode)
+    {
+        //shader.setUniform("glPrimitiveType", mode);
+        r_wireframe = mode;
+    }
 };
 
 Shader Brush::shader;
 Texture<GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR> Brush::texture;
-bool Brush::r_wireframe = false;
+int Brush::r_wireframe = true;
 
 void brush_setup()
 {
@@ -199,5 +216,7 @@ void brush_setup()
     //GLfloat maxAniso;
     //glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso);
     Brush::texture.loadFromFile("resources/images/atlas.png");
+    Brush::set_wireframe_mode(1);
+    Brush::shader.setUniform("glPrimitiveType", 1);
 
 }
