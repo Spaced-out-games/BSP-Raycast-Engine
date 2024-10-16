@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <algorithm>
 #include "Console.h"
+#include "entity.h"
 
 
 void FocusConsoleWindow() {
@@ -23,11 +24,11 @@ public:
     double previous_time = 0;
     double currentTime = 0;
     double elapsed_time = 0.0;
-    level_editor_app(int argc, char** argv) : Application<windowContent>(argc, argv), console(getCustomState()) {}
+    level_editor_app(int argc, char** argv) : Application<windowContent>(argc, argv), console(custom_state) {}
 
     void gui_tick(ImGuiContext& gui) override
     {
-        currentTime = getCustomState().t;
+        currentTime = custom_state.t;
         elapsed_time = currentTime - previous_time;
         double& dt = *getDeltaTime();
         if (elapsed_time >= 0.05)  // 0.05 seconds corresponds to 20 updates per second
@@ -41,7 +42,7 @@ public:
             ImGui::GetBackgroundDrawList()->AddText(NULL, 50.0f, ImVec2(30, 30), IM_COL32(255, 255, 255, 255), fps_counter.c_str());
         }
 
-        if (getCustomState().input_to_imgui)
+        if (custom_state.input_to_imgui)
         {
             console.Draw("Console");
 
@@ -50,31 +51,31 @@ public:
     
     void gl_tick() override {
 
-        auto& camera = getCustomState().camController->getPawn();
-        auto& controller = getCustomState().camController;
+        auto& camera = custom_state.camController->getPawn();
+        auto& controller = custom_state.camController;
 
         // Check for events
-        getCustomState().last_cam_pos = getCustomState().camController->getPawn().getPosition();
+        custom_state.last_cam_pos = custom_state.camController->getPawn().getPosition();
 
 
 
 
-        if (!getCustomState().input_to_imgui)
+        if (!custom_state.input_to_imgui)
         {
-            getCustomState().camController->CheckContinuousInput();
+            custom_state.camController->CheckContinuousInput();
         }
         while (SDL_PollEvent(&events))
         {
             if (events.type == SDL_KEYDOWN && events.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                 // The `~` key was just pressed
-                getCustomState().input_to_imgui = !getCustomState().input_to_imgui;
+                custom_state.input_to_imgui = !custom_state.input_to_imgui;
                 // Toggle input_to_imgui or handle it as needed
             }
             // First, pass the event to the Controller
-            if (!getCustomState().input_to_imgui)
+            if (!custom_state.input_to_imgui)
             {
 
-                getCustomState().camController->inputEvent(events);
+                custom_state.camController->inputEvent(events);
 
             }
             // Check the boolean to decide where to pass the event
@@ -83,29 +84,37 @@ public:
                 ImGui_ImplSDL2_ProcessEvent(&events);
             }
         }
-        getCustomState().delta_cam_pos = getCustomState().last_cam_pos - camera.getPosition();
+        custom_state.delta_cam_pos = custom_state.last_cam_pos - camera.getPosition();
 
 
         // Update the Uniform Buffer of the camera
-        getCustomState().camController->getPawn().updateUBO();
+        custom_state.camController->getPawn().updateUBO();
 
-        draw_brushes();
+        custom_state.brushes[0].draw();
         //console.ExecuteCommand("exec test_config.cfg");
-        //brush::shader.setUniform("UV_offset_position", glm::vec3(0, getCustomState().t, 0));
+        //brush::shader.setUniform("UV_offset_position", glm::vec3(0, custom_state.t, 0));
 
-        //if (getCustomState().camController->marked_for_processing)
+        //if (custom_state.camController->marked_for_processing)
        // {
         //    std::cout << ">";
-        //    std::getline(std::cin, getCustomState().camController->commands);
-        //    parse_command(getCustomState().camController->commands);
-            //getCustomState().camController->marked_for_processing = false;
+        //    std::getline(std::cin, custom_state.camController->commands);
+        //    parse_command(custom_state.camController->commands);
+            //custom_state.camController->marked_for_processing = false;
        // }
 
 
 
 
 
-        getCustomState().t += (*getDeltaTime());
+        custom_state.t += (*getDeltaTime());
+        // set t
+        custom_state.camController->getPawn().getUBO().updateData(sizeof(glm::mat4) * 2, sizeof(float), (const void*)&(custom_state.t));
+
+        double d_dt = *getDeltaTime();
+        float dt = (float)d_dt;
+        // set dt
+        custom_state.camController->getPawn().getUBO().updateData((sizeof(glm::mat4) * 2) + sizeof(float), sizeof(float), (const void*)&dt);
+
     }
     
 
@@ -127,110 +136,43 @@ public:
         */
 
 
-        // Initialize the cube mesh
-        vtx_3d_tex cube_vertices[] = {
-            // Front face
-            {{-1.0f, -1.0f, -1.0f}, {0.5f, 0.5f}}, // Bottom-left
-            {{ 1.0f, -1.0f, -1.0f}, {1.0f, 0.5f}}, // Bottom-right
-            {{ 1.0f,  1.0f, -1.0f}, {1.0f, 0.0f}}, // Top-right
-            {{-1.0f,  1.0f, -1.0f}, {0.5f, 0.0f}}, // Top-left
 
-            // Back face
-            {{-1.0f, -1.0f,  1.0f}, {0.5f, 0.5f}}, // Bottom-left
-            {{ 1.0f, -1.0f,  1.0f}, {1.0f, 0.5f}}, // Bottom-right
-            {{ 1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // Top-right
-            {{-1.0f,  1.0f,  1.0f}, {0.5f, 0.0f}}, // Top-left
-
-            // Left face
-            {{-1.0f, -1.0f, -1.0f}, {0.5f, 0.5f}}, // Bottom-left
-            {{-1.0f, -1.0f,  1.0f}, {1.0f, 0.5f}}, // Bottom-right
-            {{-1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // Top-right
-            {{-1.0f,  1.0f, -1.0f}, {0.5f, 0.0f}}, // Top-left
-
-            // Right face
-            {{ 1.0f, -1.0f, -1.0f}, {0.5f, 0.5f}}, // Bottom-left
-            {{ 1.0f, -1.0f,  1.0f}, {1.0f, 0.5f}}, // Bottom-right
-            {{ 1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // Top-right
-            {{ 1.0f,  1.0f, -1.0f}, {0.5f, 0.0f}}, // Top-left
-
-            // Top face
-            {{-1.0f,  1.0f, -1.0f}, {0.5f, 0.5f}}, // Bottom-left
-            {{ 1.0f,  1.0f, -1.0f}, {1.0f, 0.5f}}, // Bottom-right
-            {{ 1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // Top-right
-            {{-1.0f,  1.0f,  1.0f}, {0.5f, 0.0f}}, // Top-left
-
-            // Bottom face
-            {{-1.0f, -1.0f, -1.0f}, {0.5f, 0.5f}}, // Bottom-left
-            {{ 1.0f, -1.0f, -1.0f}, {1.0f, 0.5f}}, // Bottom-right
-            {{ 1.0f, -1.0f,  1.0f}, {1.0f, 0.0f}}, // Top-right
-            {{-1.0f, -1.0f,  1.0f}, {0.5f, 0.0f}}  // Top-left
-        };
-
-        GLuint cube_indices[] = {
-            // Front face
-            0, 2, 1,
-            0, 3, 2,
-
-
-            // Back face
-            4, 5, 6,
-            4, 6, 7,
-
-
-            // Left face
-            10,8, 9,
-            10, 11, 8,
-
-            // Right face
-            12, 14, 13,
-            12, 15, 14,
-
-            // Top face
-            16, 18, 17,
-            16, 19, 18,
-
-            // Bottom face
-            22, 20, 21,
-            23, 20, 22
-
-
-
-        };
-        getCustomState().cube.init(cube_vertices, sizeof(cube_vertices) / sizeof(vtx_3d_tex), cube_indices, sizeof(cube_indices) / sizeof(GLuint), "tex3d_shader_vtx_transformed.glsl", "tex3d_shader_frag.glsl", "Bricks_001.jpg");
-
-        console.target_application = &(getCustomState());
-        console.open = &(getCustomState().input_to_imgui);
+        console.target_application = &(custom_state);
+        console.open = &(custom_state.input_to_imgui);
 
 
 
         // Initialized the camera / controller
-        //getCustomState().camController
-        getCustomState().camController = new level_editor_controller();
-        getCustomState().camController->init(getWindowDimensions(), getDeltaTime(), &(getCustomState()));
-        getCustomState().camController->getPawn().getUBO().init();
+        //custom_state.camController
+        custom_state.camController = new level_editor_controller();
+        custom_state.camController->init(getWindowDimensions(), getDeltaTime(), &(custom_state));
+        custom_state.camController->getPawn().getUBO().init();
 
         // Bind it to slot 0
-        getCustomState().camController->getPawn().getUBO().bindBase(0);
-        getCustomState().camController->getPawn().setPosition({ 0, 5, 0 });
-        brush_setup();
+        custom_state.camController->getPawn().getUBO().bindBase(0);
+        custom_state.camController->getPawn().setPosition({ 0, 5, 0 });
 
         // TODO: Make add_brush's first arguments be relative to player when using ~, and second arguments can be exact position, direct dimensions with accent
 
-        //getCustomState().brushes.push_back({{ -5, 0, -5 }, { 10, 0.1, 10}});
-        console.ExecuteCommand("add_brush -5 0 -5 ~10 ~0.1 ~10");
+        //custom_state.brushes.push_back({{ -5, 0, -5 }, { 10, 0.1, 10}});
+        //console.ExecuteCommand("add_brush -5 0 -5 ~10 ~0.1 ~10");
         //brush B(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-        getCustomState().brushes.emplace_back(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-        //getCustomState().brushes[0].extrude_triangle(a, 0, 1, 2, 0.5);
+        custom_state.brushes.emplace_back();
+        brush_setup();
+        custom_state.brushes[0].prepare_for_draw();
+
+        //custom_state.brushes[0].draw();
+        //custom_state.brushes[0].extrude_triangle(a, 0, 1, 2, 0.5);
         //console.ExecuteCommand("exec test_config.cfg");
 
-        //auto& a = getCustomState().brushes[0].get_vertices();
+        //auto& a = custom_state.brushes[0].get_vertices();
 
         //a[5].material_ID = 1;
-        //getCustomState().brushes[0].update_vertices(a);
+        //custom_state.brushes[0].update_vertices(a);
         //add_brush({ -5,0,-5 }, { 10,0.1 ,10 });
         //add_brush({ 0,0,1 }, { 1,1,1 });
 
-        //getCustomState().B.init({ 0,0,0 }, { 1,1,1 });
+        //custom_state.B.init({ 0,0,0 }, { 1,1,1 });
         // Disable the cursor
         
 
@@ -240,8 +182,8 @@ public:
 
     void draw_brushes()
     {
-        size_t initial_size = getCustomState().brushes.size();
-        auto& brushes = getCustomState().brushes;
+        size_t initial_size = custom_state.brushes.size();
+        auto& brushes = custom_state.brushes;
         // Loop through existing brushes
         for (size_t i = 0; i < initial_size; ++i) {
 
