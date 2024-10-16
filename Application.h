@@ -57,6 +57,7 @@ public:
     virtual void gl_tick() { std::cout << "tick\n"; };
     virtual void gui_tick(ImGuiContext& gui) {};
     SDL_Event events;
+    state_t custom_state;
 private:
     void init_SDL();
     ImGuiContext* imgui_context = nullptr;
@@ -73,7 +74,7 @@ private:
 
 
     std::string mTitle;
-    state_t custom_state;
+    
 };
 
 
@@ -283,11 +284,7 @@ void Application<state_t>::setCustomState(const state_t& state)
     custom_state = state;
 }
 
-template <class state_t>
-state_t& Application<state_t>::getCustomState()
-{
-    return custom_state;
-}
+
 
 
 /*
