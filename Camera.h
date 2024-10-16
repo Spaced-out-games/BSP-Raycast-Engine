@@ -37,6 +37,7 @@ public:
         glm::mat4 projectionMatrix = getPerspectiveMatrix();
         ubo.updateData(0, sizeof(glm::mat4), glm::value_ptr(viewMatrix));
         ubo.updateData(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(projectionMatrix));
+        
     }
 
     void bindUBO(GLuint program) const {
