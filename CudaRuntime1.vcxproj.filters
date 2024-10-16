@@ -112,14 +112,14 @@
     <ClInclude Include="level_editor_controller.h">
       <Filter>include\GameIO</Filter>
     </ClInclude>
-    <ClInclude Include="newbrush.h">
-      <Filter>include\bsp</Filter>
+    <ClInclude Include="client.h">
+      <Filter>include\server</Filter>
     </ClInclude>
-    <ClInclude Include="my-brush.h">
-      <Filter>include\bsp</Filter>
+    <ClInclude Include="server.h">
+      <Filter>include\server</Filter>
     </ClInclude>
-    <ClInclude Include="brush-iter3.h">
-      <Filter>include\bsp</Filter>
+    <ClInclude Include="entity.h">
+      <Filter>include\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +164,9 @@
     </Filter>
     <Filter Include="include\Applications">
       <UniqueIdentifier>{4e254028-d939-41e4-99eb-685160622c09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\server">
+      <UniqueIdentifier>{a11f0a33-dc51-4459-89a0-722032889d9c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

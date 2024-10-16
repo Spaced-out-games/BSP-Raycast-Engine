@@ -26,20 +26,20 @@
     <ClCompile Include="VEditorController.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="brush-iter3.h" />
     <ClInclude Include="brush.h" />
     <ClInclude Include="bsp.h" />
     <ClInclude Include="bspnode.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="client.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="cube_demo.h" />
     <ClInclude Include="debug_utils.h" />
     <ClInclude Include="eBuffer.h" />
+    <ClInclude Include="entity.h" />
     <ClInclude Include="freecam.h" />
     <ClInclude Include="level_editor.h" />
     <ClInclude Include="level_editor_controller.h" />
-    <ClInclude Include="my-brush.h" />
-    <ClInclude Include="newbrush.h" />
+    <ClInclude Include="server.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="shader_collection.h" />
     <ClInclude Include="SIMD_float_128.h" />
