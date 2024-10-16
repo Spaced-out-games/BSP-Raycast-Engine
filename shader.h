@@ -146,6 +146,22 @@ struct Shader {
         glUniformMatrix4fv(uniformCode, 1, GL_FALSE, glm::value_ptr(matrix4));
         #endif
     }
+    void setUniform(const char* uniform_ID, const int& integer) const {
+        CHECK_GL_ERROR();
+
+        GLint uniformCode = glGetUniformLocation(ShaderProgram, uniform_ID);
+        #ifdef _DEBUG
+        if (uniformCode != -1) {
+            // Set the integer uniform correctly
+            glUniform1i(uniformCode, integer);
+        }
+        else {
+            std::cerr << "WARNING: Uniform '" << uniform_ID << "' not found in shader program " << ShaderProgram << std::endl;
+        }
+        #else
+        glUniform1i(uniformCode, integer);
+        #endif
+        }
 
     /**
      * @brief Sets a uniform vec3 value in the shader program.
