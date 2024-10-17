@@ -122,8 +122,8 @@ void Controller<Pawn>::inputEvent(SDL_Event& events) {
             break;
         default:
             break;
-        //}
-    }
+        }
+    //}
 }
 
 template <class Pawn>
@@ -149,3 +149,7 @@ glm::vec2 Controller<Pawn>::getNormalizedMousePos()
 
     return ((getMousePosition() / (*windowDimensions)) - glm::vec2(0.5, 0.5)) * glm::vec2(2.0, 2.0);// getMousePosition();
 }
+
+
+
+
