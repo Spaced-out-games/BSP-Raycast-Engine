@@ -5,6 +5,23 @@
 #include "Console.h"
 #include "entity.h"
 
+#include "server_definition.h"
+#include "server.h"
+#include "client.h"
+// how about we make a client simply an Application, Controller, Camera, and clientinfo?
+
+typedef struct clientinfo
+{
+    client player;
+    float t;
+    float dt;
+    bool input_to_imgui;
+};
+
+
+
+
+extern server_t& server;
 
 void FocusConsoleWindow() {
     
@@ -14,23 +31,24 @@ void FocusSDLWindow(SDL_Window* sdlWindow) {
     SDL_RaiseWindow(sdlWindow);
 }
 
-class level_editor_app : public Application<windowContent> {
+class level_editor_app : public Application<clientinfo> {
 private:
-
-public:
     std::string fps_counter;
     float timeAccumulator = 0.0f;
     basic_console console;
-    double previous_time = 0;
-    double currentTime = 0;
-    double elapsed_time = 0.0;
-    level_editor_app(int argc, char** argv) : Application<windowContent>(argc, argv), console(custom_state) {}
+    float previous_time = 0;
+    float currentTime = 0;
+    float elapsed_time = 0.0;
+public:
+
+    level_editor_app(int argc, char** argv) : Application<clientinfo>(argc, argv)  {}
 
     void gui_tick(ImGuiContext& gui) override
     {
+        
         currentTime = custom_state.t;
         elapsed_time = currentTime - previous_time;
-        double& dt = *getDeltaTime();
+        float& dt = custom_state.dt;
         if (elapsed_time >= 0.05)  // 0.05 seconds corresponds to 20 updates per second
         {
             double fps = 1.0 / dt;  // Calculate FPS if dt > 0
@@ -44,38 +62,48 @@ public:
 
         if (custom_state.input_to_imgui)
         {
-            console.Draw("Console");
+            //console.Draw("Console");
 
         }
+        
     }
     
     void gl_tick() override {
+        
 
-        auto& camera = custom_state.camController->getPawn();
-        auto& controller = custom_state.camController;
+        auto& controllers = server.get_container<ent_controller>();
+        ent_controller& controller = controllers.get(0);
+        ent_camera& camera = *controller.camera;
+
+        ///*
+        
+        //auto& camera = custom_state.camController->getPawn();
+        //auto& controller = custom_state.camController;
 
         // Check for events
-        custom_state.last_cam_pos = custom_state.camController->getPawn().getPosition();
+        camera.last_cam_pos = camera.getPosition();
 
 
 
 
         if (!custom_state.input_to_imgui)
         {
-            custom_state.camController->CheckContinuousInput();
+            controller.CheckContinuousInput();
+            //custom_state.camController->CheckContinuousInput();
         }
-        while (SDL_PollEvent(&events))
+        SDL_Event& events = controller.get_current_event();
+        while (controller.get_next_event())
         {
             if (events.type == SDL_KEYDOWN && events.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                 // The `~` key was just pressed
+                
                 custom_state.input_to_imgui = !custom_state.input_to_imgui;
                 // Toggle input_to_imgui or handle it as needed
             }
             // First, pass the event to the Controller
             if (!custom_state.input_to_imgui)
             {
-
-                custom_state.camController->inputEvent(events);
+                controller.input_event();
 
             }
             // Check the boolean to decide where to pass the event
@@ -84,13 +112,13 @@ public:
                 ImGui_ImplSDL2_ProcessEvent(&events);
             }
         }
-        custom_state.delta_cam_pos = custom_state.last_cam_pos - camera.getPosition();
 
+        camera.delta_cam_pos = camera.last_cam_pos - camera.get_position();
 
         // Update the Uniform Buffer of the camera
-        custom_state.camController->getPawn().updateUBO();
+        camera.updateUBO();
 
-        custom_state.brushes[0].draw();
+        
         //console.ExecuteCommand("exec test_config.cfg");
         //brush::shader.setUniform("UV_offset_position", glm::vec3(0, custom_state.t, 0));
 
@@ -105,22 +133,31 @@ public:
 
 
 
-
-        custom_state.t += (*getDeltaTime());
+        custom_state.t += custom_state.dt;
         // set t
-        custom_state.camController->getPawn().getUBO().updateData(sizeof(glm::mat4) * 2, sizeof(float), (const void*)&(custom_state.t));
+        camera.getUBO().updateData(sizeof(glm::mat4) * 2, sizeof(float), (const void*)&(custom_state.t));
 
         double d_dt = *getDeltaTime();
         float dt = (float)d_dt;
         // set dt
-        custom_state.camController->getPawn().getUBO().updateData((sizeof(glm::mat4) * 2) + sizeof(float), sizeof(float), (const void*)&dt);
-
+        camera.getUBO().updateData((sizeof(glm::mat4) * 2) + sizeof(float), sizeof(float), (const void*)&custom_state.dt);
+        //*/
     }
     
 
 
     void bootstrap() override {
 
+        deltaTime = &custom_state.dt;
+        // Add a camera to the scene
+        auto& cameras = server.get_container<ent_camera>();
+        cameras.add();
+        ent_camera& camera = cameras.get(0);
+
+        auto& controllers = server.get_container<ent_controller>();
+        controllers.add();
+        ent_controller& controller = controllers.get(0);
+        //custom_state = nullptr;// &(server.custom_state);
         /*
         * If you are dealing with programmer block, here are your next steps:
         TODO:
@@ -133,7 +170,7 @@ public:
         6. Integrate a hash map for game objects that are stored per the node they belong to. Store this in a buffer and use CUDA to update the hash map.
         7. Traverse every node and compare collisions only to objects within that node (and of course, the level BSP from that leaf down)
 
-        */
+        
 
 
 
@@ -176,12 +213,13 @@ public:
         // Disable the cursor
         
 
-
+        */
     }
 
 
     void draw_brushes()
     {
+        /*
         size_t initial_size = custom_state.brushes.size();
         auto& brushes = custom_state.brushes;
         // Loop through existing brushes
@@ -191,7 +229,7 @@ public:
             brushes[i].draw();
 
         }
-
+        */
     }
     
     //todo: 
