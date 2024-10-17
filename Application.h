@@ -38,7 +38,7 @@ public:
 
     // Getters
     SDL_GLContext& getContext();
-    double* getDeltaTime() { return &deltaTime; };
+    float* getDeltaTime() { return deltaTime; };
     SDL_Window* getWindow();
     glm::vec2* getWindowDimensions() { return &windowDimensions; }
 
@@ -58,10 +58,10 @@ public:
     virtual void gui_tick(ImGuiContext& gui) {};
     SDL_Event events;
     state_t custom_state;
-private:
+//private:
     void init_SDL();
     ImGuiContext* imgui_context = nullptr;
-    double deltaTime;// Make these private again and into
+    float* deltaTime;// Make these private again and into
     
     glm::vec2 windowDimensions;
     SDL_Window* sdlWindow;
@@ -74,7 +74,7 @@ private:
 
 
     std::string mTitle;
-    
+    void set_deltaTime_ptr(float* ptr) { deltaTime = ptr; }
 };
 
 
@@ -84,7 +84,7 @@ Application<state_t>::Application(int argc, char** argv) :
     sdlWindow(nullptr),
     glContext(nullptr),
     windowDimensions(1920.0f, 1080.0f),
-    deltaTime(0.0),
+    deltaTime(nullptr),
     vsync_enabled(false),
     running(false),
     init_success(false),
@@ -252,7 +252,7 @@ int Application<state_t>::run()
         SDL_GL_SwapWindow(sdlWindow);
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = end - start;
-        deltaTime = elapsed.count();
+        *deltaTime = elapsed.count();
     }
     return 0;
 }
