@@ -121,6 +121,8 @@
     <ClInclude Include="entity.h">
       <Filter>include\server</Filter>
     </ClInclude>
+    <ClInclude Include="ent_controller.h" />
+    <ClInclude Include="server_definition.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">

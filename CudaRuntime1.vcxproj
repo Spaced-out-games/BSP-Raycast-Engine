@@ -36,10 +36,12 @@
     <ClInclude Include="debug_utils.h" />
     <ClInclude Include="eBuffer.h" />
     <ClInclude Include="entity.h" />
+    <ClInclude Include="ent_controller.h" />
     <ClInclude Include="freecam.h" />
     <ClInclude Include="level_editor.h" />
     <ClInclude Include="level_editor_controller.h" />
     <ClInclude Include="server.h" />
+    <ClInclude Include="server_definition.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="shader_collection.h" />
     <ClInclude Include="SIMD_float_128.h" />
