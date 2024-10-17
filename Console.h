@@ -288,7 +288,13 @@ Pawn* Console<Pawn>::target_application = nullptr;
 // Usage with basic_console
 #include "windowContent.h"
 
-class basic_console : public Console<windowContent> {
+
+
+class basic_console {};
+
+
+/*
+class basic_console : public Console<char> {
 public:
 
 
@@ -575,7 +581,8 @@ public:
         RegisterCommand("set_mat", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             exit(64);
         }, "Sets the material of a face");
-        */
+        
     }
 };
 
+*/
