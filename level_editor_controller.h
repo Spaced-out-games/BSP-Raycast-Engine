@@ -4,9 +4,12 @@
 #include "Controller.h"
 #include <SDL.h>
 #include "debug_utils.h"
+//#include "ent_controller.h"
 
 // Forward declaration of windowContent
+/*
 struct windowContent;
+
 
 class level_editor_controller : public Controller<Camera> {
 public:
@@ -35,18 +38,16 @@ public:
     windowContent* window_content;  // Pointer to windowContent to avoid circular dependency
 };
 
-#include "level_editor_controller.h"
-#include "windowContent.h"
 
 level_editor_controller::level_editor_controller() {
     windowDimensions = nullptr;
     deltaTime = nullptr;
 }
 
-void level_editor_controller::init(glm::vec2* window_width_ptr, double* deltaTime_ptr, windowContent* window_contentnt_ptr) {
+void level_editor_controller::init(glm::vec2* window_width_ptr, double* deltaTime_ptr, windowContent* window_content_ptr) {
     windowDimensions = window_width_ptr;
     deltaTime = deltaTime_ptr;
-    window_content = window_contentnt_ptr;
+    window_content = window_content_ptr;
 }
 
 void level_editor_controller::onMouseMove(SDL_Event event) {}
@@ -104,3 +105,4 @@ void level_editor_controller::onKeyUp(SDL_Event event) {
         break;
     }
 }
+*/
