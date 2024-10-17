@@ -7,7 +7,7 @@
 extern server_t& server;
 
 // how about we make a client simply an Application, Controller, Camera, and clientinfo?
-
+/*
 typedef struct clientinfo
 {
     client player;
@@ -15,7 +15,7 @@ typedef struct clientinfo
     float dt;
     bool input_to_imgui;
 };
-
+*/
 
 struct client : public ent_camera, public ent_controller {
     void init() {};

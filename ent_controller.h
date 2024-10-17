@@ -60,6 +60,7 @@ class ent_controller : public ent
     const Uint8* state;
     ControllerState<>* game_state_ptr; // Pointer to game state
 public:
+    bool marked_for_processing;
     ent_camera* camera = nullptr;
 
     ent_controller(ControllerState<>* game_state);

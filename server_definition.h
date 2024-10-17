@@ -9,7 +9,7 @@ class ent_controller;
 struct windowContent;
 //typedef struct none_t {}; // Define an empty type
 
-#define server_t Server<char, ent, ent_camera, ent_controller>
+#define server_t Server<char, ent, ent_camera, ent_controller, ent_brush>
 
 
 // Declare the static instance of server_t at the bottom of Server.h

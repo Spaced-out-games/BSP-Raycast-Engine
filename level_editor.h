@@ -122,12 +122,12 @@ public:
         //console.ExecuteCommand("exec test_config.cfg");
         //brush::shader.setUniform("UV_offset_position", glm::vec3(0, custom_state.t, 0));
 
-        //if (custom_state.camController->marked_for_processing)
+        //if (controller.marked_for_processing)
        // {
-        //    std::cout << ">";
-        //    std::getline(std::cin, custom_state.camController->commands);
+         //   std::cout << ">";
+         //   std::getline(std::cin, custom_state.camController->commands);
         //    parse_command(custom_state.camController->commands);
-            //custom_state.camController->marked_for_processing = false;
+        //    custom_state.camController->marked_for_processing = false;
        // }
 
 
@@ -169,34 +169,34 @@ public:
         5. Add more complicated shader support (Lighting effects, parallax, shader includes)
         6. Integrate a hash map for game objects that are stored per the node they belong to. Store this in a buffer and use CUDA to update the hash map.
         7. Traverse every node and compare collisions only to objects within that node (and of course, the level BSP from that leaf down)
-
+        */
         
 
 
 
-        console.target_application = &(custom_state);
-        console.open = &(custom_state.input_to_imgui);
+        //console.target_application = &(custom_state);
+        //console.open = &(custom_state.input_to_imgui);
 
 
 
         // Initialized the camera / controller
         //custom_state.camController
-        custom_state.camController = new level_editor_controller();
-        custom_state.camController->init(getWindowDimensions(), getDeltaTime(), &(custom_state));
-        custom_state.camController->getPawn().getUBO().init();
+        //custom_state.camController = new level_editor_controller();
+        //custom_state.camController->init(getWindowDimensions(), getDeltaTime(), &(custom_state));
+        camera.getUBO().init();
+        
 
         // Bind it to slot 0
-        custom_state.camController->getPawn().getUBO().bindBase(0);
-        custom_state.camController->getPawn().setPosition({ 0, 5, 0 });
+        camera.getUBO().bindBase(0);
+        camera.setPosition({ 0, 5, 0 });
 
         // TODO: Make add_brush's first arguments be relative to player when using ~, and second arguments can be exact position, direct dimensions with accent
 
-        //custom_state.brushes.push_back({{ -5, 0, -5 }, { 10, 0.1, 10}});
-        //console.ExecuteCommand("add_brush -5 0 -5 ~10 ~0.1 ~10");
-        //brush B(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-        custom_state.brushes.emplace_back();
+
+        server.get_container<ent_brush>().add();
         brush_setup();
-        custom_state.brushes[0].prepare_for_draw();
+        server.get_container<ent_brush>().get(0).prepare_for_draw();
+        //custom_state.brushes[0].prepare_for_draw();
 
         //custom_state.brushes[0].draw();
         //custom_state.brushes[0].extrude_triangle(a, 0, 1, 2, 0.5);
@@ -213,7 +213,6 @@ public:
         // Disable the cursor
         
 
-        */
     }
 
 
