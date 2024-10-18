@@ -40,6 +40,7 @@
     <ClInclude Include="freecam.h" />
     <ClInclude Include="level_editor.h" />
     <ClInclude Include="level_editor_controller.h" />
+    <ClInclude Include="old_level_editor.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="server_definition.h" />
     <ClInclude Include="shapes.h" />

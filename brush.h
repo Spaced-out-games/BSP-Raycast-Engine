@@ -288,8 +288,9 @@ void brush_setup()
 
 #include "entity.h"
 
-typedef struct ent_brush : public ent, Brush
+typedef struct ent_brush : public ent
 {
+    Brush brush;
     enum : uint16_t {
         SET_WIREFRAME = 4,
         GET_WIREFRAME = 5
@@ -303,8 +304,8 @@ typedef struct ent_brush : public ent, Brush
     }
     void draw() override
     {
-        Brush::prepare_for_draw();
-        Brush::draw();
+        brush.prepare_for_draw();
+        brush.draw();
 
     }
     void tick() override

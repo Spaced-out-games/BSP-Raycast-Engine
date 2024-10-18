@@ -12,7 +12,6 @@
 //#include "client.h"
 
 // Entity container class for managing entity lists and references
-// Entity container class for managing entity lists and references
 template<typename T>
 class ent_container {
 public:
@@ -130,26 +129,19 @@ private:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Server class to manage different types of entities
 template<typename header_t = char, typename... Ts>
 class Server {
 public:
+    std::string command_string;
     float dt;
     float t;
     header_t custom_state;
+
+    // read-only reference
+    float& get_delta_time() { return dt; }
+    float& get_time() { return t; }
+
 
     // Singleton instance retrieval
     static Server& instance() {
@@ -162,12 +154,14 @@ public:
 
     // Method to add an entity and return an ent_reference
     template<typename T, typename... Args>
-    ent_reference add_entity(Args&&... args) {
+    T& add_entity(Args&&... args) {
         auto& container = get_container<T>();
+        size_t size = container.size();
         container.add(std::forward<Args>(args)...);
 
         // Create an ent_reference with the type and the index of the newly added entity
-        return ent_reference{ static_cast<uint16_t>(container.size() - 1) }; // Size - 1 for zero-based index
+        return container.get(size);
+        //return ent_reference{ static_cast<uint16_t>(container.size() - 1) }; // Size - 1 for zero-based index
     }
 
     // Retrieve the container for a specific type T

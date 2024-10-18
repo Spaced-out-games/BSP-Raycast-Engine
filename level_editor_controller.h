@@ -7,7 +7,7 @@
 //#include "ent_controller.h"
 
 // Forward declaration of windowContent
-/*
+
 struct windowContent;
 
 
@@ -20,22 +20,22 @@ public:
     void onKeyDown(SDL_Event event) override;
     void onKeyUp(SDL_Event event) override;
 
-    double* deltaTime;
-    const Uint8* state = SDL_GetKeyboardState(nullptr);
-    glm::vec2 lastMousePos = { 0.0, 0.0 };
-    glm::vec2 deltaMousePos = { 0.0, 0.0 };
-    float vertical_sensitivity = 50.0f;
-    float horizontal_sensitivity = 50.0f;
-    float move_speed = 10.0;
-    float sprint_multiplier = 2.0f;
-    float current_speed = 10.0f;
-    glm::vec3 last_camera_pos;
-    glm::vec3 delta_camera_pos;
-    bool clip = false;
-    bool receiving_input = false;
-    bool marked_for_processing = false;
-    std::string commands;
-    windowContent* window_content;  // Pointer to windowContent to avoid circular dependency
+    double* deltaTime; // Now in Client as `dt`
+    const Uint8* state = SDL_GetKeyboardState(nullptr); // Now in ent_controller as `state`
+    glm::vec2 lastMousePos = { 0.0, 0.0 }; // Now in `ControllerState`
+    glm::vec2 deltaMousePos = { 0.0, 0.0 }; // Now in `ControllerState`
+    float vertical_sensitivity = 50.0f; // Now in `ControllerState`
+    float horizontal_sensitivity = 50.0f;// Now in `ControllerState`
+    float move_speed = 10.0;// Now in `ControllerState`
+    float sprint_multiplier = 2.0f;// Now in `ControllerState`
+    float current_speed = 10.0f;// Now in `ControllerState`
+    glm::vec3 last_camera_pos; // Now in `ent_camera`
+    glm::vec3 delta_camera_pos; // Now in `ent_camera`
+    bool clip = false;          // Now in `client'
+    bool receiving_input = false;   // Now in `ent_controller`
+    bool marked_for_processing = false; // Now in `ent_controller`
+    std::string commands;               // Now in `Server` as `command_string`
+    windowContent* window_content;      // Deprecated
 };
 
 
@@ -105,4 +105,4 @@ void level_editor_controller::onKeyUp(SDL_Event event) {
         break;
     }
 }
-*/
+//*/

@@ -123,6 +123,7 @@
     </ClInclude>
     <ClInclude Include="ent_controller.h" />
     <ClInclude Include="server_definition.h" />
+    <ClInclude Include="old_level_editor.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">

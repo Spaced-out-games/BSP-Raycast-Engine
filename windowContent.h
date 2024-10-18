@@ -9,9 +9,10 @@
 //extern server_t& server;
 
 // Forward declaration of level_editor_controller
+/*
 class level_editor_controller;
 
-/*
+
 struct windowContent {
     std::vector<Brush> brushes;
     float t = 0.0f;
@@ -43,4 +44,5 @@ windowContent::~windowContent() {
 void windowContent::init() {
     camController = new level_editor_controller();  // Dynamically allocate controller
 
-}*/
+}
+*/

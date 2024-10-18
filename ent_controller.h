@@ -9,191 +9,148 @@
 #include "Camera.h"
 extern server_t& server;
 
-// Define ControllerState struct
-template <typename T = char >
-struct ControllerState
-{
-    glm::uvec2 window_dimensions; // Store window dimensions
-    SDL_Event event; // SDL event
-    glm::vec2 mouse_pos; // Current mouse position
-    glm::vec2 delta_mouse_pos; // Change in mouse position
-    glm::vec2 last_mouse_pos;
-    float deltaTime;
-    float vertical_sensitivity = 50.0f;
-    float horizontal_sensitivity = 50.0f;
-    float move_speed = 10.0;
-    float sprint_multiplier = 2.0f;
-    float current_speed = 10.0f;
-
-    // Poll for the next event
-    int get_next_event()
-    {
-        return SDL_PollEvent(&event);
-    }
-
-    // Get the current mouse position
-    glm::vec2 get_mouse_position()
-    {
-        int mouse_x, mouse_y;
-        SDL_GetMouseState(&mouse_x, &mouse_y);
-        return glm::vec2(static_cast<float>(mouse_x), static_cast<float>(mouse_y));
-    }
-
-    // Update mouse position
-    void mouse_tick()
-    {
-        last_mouse_pos = mouse_pos;
-        glm::vec2 new_position = ((get_mouse_position() / glm::vec2(window_dimensions)) - glm::vec2(0.5, 0.5)) * glm::vec2(2.0, 2.0);
-        delta_mouse_pos = new_position - mouse_pos;
-        mouse_pos = new_position;
-    }
-
-    inline glm::vec2 get_normalized_mouse_position() { return mouse_pos; }
-
-    T custom_controller_state; // Optional custom state
-};
-
 // Define ent_controller class
 
+// Pretty much a Controller but wrapped as an ent
 class ent_controller : public ent
 {
-    const Uint8* state;
-    ControllerState<>* game_state_ptr; // Pointer to game state
 public:
-    bool marked_for_processing;
-    ent_camera* camera = nullptr;
 
-    ent_controller(ControllerState<>* game_state);
-    ent_controller();
-    ~ent_controller() = default;
+    struct
+    {
+        float current_speed = 10.0f;// Now in `ControllerState`
+        float vertical_sensitivity = 50.0f; // Now in `ControllerState`
+        float horizontal_sensitivity = 50.0f;// Now in `ControllerState`
+    };
+
+
+    ent_camera& camera;
+    ent_controller(size_t index): camera(server.get_container<ent_camera>().get(index)) {};
+    ~ent_controller();
+
+    void input_event();
+    SDL_Event& get_event() { return mEvent; }
 
     // Poll for the next event
     int get_next_event()
     {
-        return game_state_ptr->get_next_event();
+        return SDL_PollEvent(&mEvent);
     }
-    SDL_Event& get_current_event() { return game_state_ptr->event; }
+    glm::ivec2 window_dimensions;
 
-    void input_event(); // Handle input events
-    ControllerState<>& get_game_state() { return *game_state_ptr; }
-
-    // Event handlers
-    virtual void onQuit(SDL_Event event) {};
-    virtual void onKeyDown(SDL_Event event) {};
-    virtual void onKeyUp(SDL_Event event) {};
-    virtual void onMouseMove(SDL_Event event) {};
-    virtual void onMouseButtonDown(SDL_Event event) {};
-    virtual void onMouseButtonUp(SDL_Event event) {};
-    virtual void onMouseWheelMove(SDL_Event event) {};
-    virtual void onFileDrop(SDL_Event event) {};
-    virtual void onTextDrop(SDL_Event event) {};
-    virtual void onBeginDrop(SDL_Event event) {};
-    virtual void onEndDrop(SDL_Event event) {};
-    virtual void onWindowResize(SDL_Event event);
-
-    inline glm::vec2 get_mouse_position();
-    inline glm::vec2 get_normalized_mouse_position();
+    virtual void onQuit() {};
+    virtual void onKeyDown() {};
+    virtual void onKeyUp() {};
+    virtual void onMouseMove() {};
+    virtual void onMouseButtonDown() {};
+    virtual void onMouseButtonUp() {};
+    virtual void onMouseWheelMove() {};
+    virtual void onFileDrop() {};
+    virtual void onTextDrop() {};
+    virtual void onBeginDrop() {};
+    virtual void onEndDrop() {};
     void CheckContinuousInput() {
-        glm::vec2& deltaMousePos = get_normalized_mouse_position() - game_state_ptr->last_mouse_pos;
+        deltaMousePos =get_mouse_position_normalized() - lastMousePos;
+        state = SDL_GetKeyboardState(nullptr);
+        float dt = server.dt;
         
-        float& dt = game_state_ptr->deltaTime;
-        ent_camera& target_camera = *camera;
-        //Camera& target_camera = getPawn();
 
         if (state[SDL_SCANCODE_W]) {
-            target_camera.moveForward(game_state_ptr->current_speed * (game_state_ptr->deltaTime));
+            camera.moveForward(current_speed * (dt));
         }
         if (state[SDL_SCANCODE_S]) {
-            target_camera.moveForward(-game_state_ptr->current_speed * (game_state_ptr->deltaTime));
+            camera.moveForward(-current_speed * (dt));
         }
         if (state[SDL_SCANCODE_A]) {
-            target_camera.moveRight(game_state_ptr->current_speed * (game_state_ptr->deltaTime));
+            camera.moveRight(current_speed * (dt));
         }
         if (state[SDL_SCANCODE_D]) {
-            target_camera.moveRight(-game_state_ptr->current_speed * (game_state_ptr->deltaTime));
+            camera.moveRight(-current_speed * (dt));
         }
 
-        glm::vec2& mouse = get_normalized_mouse_position();
+        glm::vec2& mouse = get_mouse_position_normalized();
         if ((mouse.x < -0.5f || mouse.x > 0.5f || mouse.y < -0.5f || mouse.y > 0.5f)) {
-            SDL_WarpMouseInWindow(SDL_GL_GetCurrentWindow(), game_state_ptr->window_dimensions.x / 2, game_state_ptr->window_dimensions.y / 2);
+            SDL_WarpMouseInWindow(SDL_GL_GetCurrentWindow(), window_dimensions.x / 2, window_dimensions.y / 2);
         }
-        
-        target_camera.rotate(game_state_ptr->delta_mouse_pos.y * glm::radians(90.0f) * game_state_ptr->vertical_sensitivity,
-            -game_state_ptr->delta_mouse_pos.x * glm::radians(90.0f) * game_state_ptr->horizontal_sensitivity);
+        camera.rotate(deltaMousePos.y * glm::radians(90.0) * vertical_sensitivity,
+            -deltaMousePos.x * glm::radians(90.0) * horizontal_sensitivity);
 
-
-        game_state_ptr->last_mouse_pos = get_normalized_mouse_position();
+        lastMousePos = get_mouse_position_normalized();
     }
+    virtual void onWindowResize()
+    {
+        SDL_Event& event = get_event();
+        glViewport(0, 0, event.window.data1, event.window.data2);
+
+        // Update window widths and heights when the window is resized
+        window_dimensions = { static_cast<unsigned int>(event.window.data1), static_cast<unsigned int>(event.window.data2) };
+    }
+
+    void update_mouse_position();
+    glm::ivec2 get_mouse_position();
+    glm::vec2 get_mouse_position_normalized();
+    const Uint8* state = SDL_GetKeyboardState(nullptr);
+    glm::vec2 normalize_to_screen_space(glm::ivec2 screen_position);
+    glm::vec2 lastMousePos = { 0.0, 0.0 }; // Now in `ControllerState`
+    glm::vec2 deltaMousePos = { 0.0, 0.0 }; // Now in `ControllerState`
+    glm::ivec2* window_dimensions_ptr;
+
+    // Unnormalized mouse position
+    glm::ivec2 mouse_position;
+    //ent_camera* camera;
+
+private:
+    SDL_Event mEvent;
 };
 
-// Constructor for ent_controller. Needs cleaned up
-ent_controller::ent_controller(ControllerState<>* game_state) : game_state_ptr(game_state)
+// Constructors
 
-{
-    state = SDL_GetKeyboardState(nullptr);
-}
 
-// Constructor for ent_controller
-ent_controller::ent_controller()
+// Destructor
+ent_controller::~ent_controller() {}
 
-{
-    game_state_ptr = new ControllerState<>();
-    // get the index of the next one to be added
-    //size_t index = server.get_container<ent_camera>().size();
-    // Add a camera to the scene
-   // server.get_container<ent_camera>().add();
-    size_t index = server.get_container<ent_camera>().size();
-    // Add a camera to the scene
-    server.get_container<ent_camera>().add();
-
-    // Assign the camera
-    camera = &(server.get_container<ent_camera>().get(index));
-    // Assign the camera
-    //camera = &server.get_container<ent_camera>().get(index);
-    state = SDL_GetKeyboardState(nullptr);
-}
-//ent_controller::ent_controller (ent_camera&)... belongs here
-
-// Input event handler
+// input decision tree
 void ent_controller::input_event()
 {
-    game_state_ptr->get_next_event(); // Get the next SDL event
-    SDL_Event& events = game_state_ptr->event; // Reference to the current event
-
-    switch (events.type)
-    {
+    switch (mEvent.type) {
     case SDL_QUIT:
-        onQuit(events);
+        onQuit();
         break;
     case SDL_KEYUP:
-        onKeyUp(events);
+        onKeyUp();
         break;
     case SDL_KEYDOWN:
-        onKeyDown(events);
+        onKeyDown();
         break;
     case SDL_MOUSEMOTION:
-        onMouseMove(events);
+        onMouseMove();
         break;
     case SDL_MOUSEBUTTONDOWN:
-        onMouseButtonDown(events);
+        onMouseButtonDown();
         break;
     case SDL_MOUSEBUTTONUP:
-        onMouseButtonUp(events);
+        onMouseButtonUp();
         break;
     case SDL_MOUSEWHEEL:
-        onMouseWheelMove(events);
+        onMouseWheelMove();
         break;
     case SDL_DROPFILE:
-        onFileDrop(events);
+        onFileDrop();
         break;
     case SDL_DROPTEXT:
-        onTextDrop(events);
+        onTextDrop();
         break;
     case SDL_DROPBEGIN:
-        onBeginDrop(events);
+        onBeginDrop();
         break;
     case SDL_DROPCOMPLETE:
-        onEndDrop(events);
+        onEndDrop();
+        break;
+    case SDL_WINDOWEVENT:
+        if (mEvent.window.event == SDL_WINDOWEVENT_RESIZED) {
+            onWindowResize();
+            std::cout << "Window resized\n";
+        }
         break;
     case SDL_APP_WILLENTERBACKGROUND:
         std::cout << "App will enter background\n";
@@ -207,57 +164,34 @@ void ent_controller::input_event()
     case SDL_APP_DIDENTERFOREGROUND:
         std::cout << "App entered foreground\n";
         break;
-    case SDL_WINDOWEVENT_RESIZED:
-        onWindowResize(events);
-        std::cout << "Window resized\n";
-        break;
     default:
         break;
     }
 }
 
-// Window resize event handler
-void ent_controller::onWindowResize(SDL_Event event)
+void ent_controller::update_mouse_position()
 {
-    glViewport(0, 0, event.window.data1, event.window.data2);
-    game_state_ptr->window_dimensions = { static_cast<unsigned int>(event.window.data1), static_cast<unsigned int>(event.window.data2) };
+    SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
 }
 
-// Get current mouse position
-glm::vec2 ent_controller::get_mouse_position()
+glm::ivec2 ent_controller::get_mouse_position()
 {
-    return game_state_ptr->get_mouse_position();
+    return mouse_position;
 }
 
-// Get normalized mouse position
-glm::vec2 ent_controller::get_normalized_mouse_position()
+glm::vec2 ent_controller::normalize_to_screen_space(glm::ivec2 screen_position)
 {
-    return game_state_ptr->get_normalized_mouse_position();
+    glm::vec2 screen_position_float(static_cast<float>(screen_position.x), static_cast<float>(screen_position.y));
+
+    return ((screen_position_float / glm::vec2(window_dimensions)) - glm::vec2(0.5f, 0.5f)) * glm::vec2(2.0f, 2.0f);
+
+
+}
+
+glm::vec2 ent_controller::get_mouse_position_normalized()
+{
+    return normalize_to_screen_space(mouse_position);
 }
 
 
 
-
-
-
-
-
-/*
-class ent_level_editor_controller : public ent_controller {
-public:
-    ent_level_editor_controller(ControllerState<>* controller_ptr, ent_reference camera_reference) : ent_controller(controller_ptr), camera_reference(camera_reference)
-    {
-        camera_reference = server.add_entity<ent_camera>(ent_camera());
-        server.get_container_by_reference<ent_camera>(camera_reference).
-    };
-
-    bool clip = false;
-    // reference to the camera.
-    ent_reference camera_reference;
-    
-    bool receiving_input = false;
-    bool marked_for_processing = false;
-    std::string commands;
-    // Instead of a windowContent*, juse use the server
-};
-*/
