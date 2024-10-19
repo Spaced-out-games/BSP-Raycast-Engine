@@ -5,7 +5,7 @@
 #include "GL\glew.h"
 
 
-
+/*
 template <class Pawn>
 class Controller
 {
@@ -149,3 +149,4 @@ glm::vec2 Controller<Pawn>::getNormalizedMousePos()
 
     return ((getMousePosition() / (*windowDimensions)) - glm::vec2(0.5, 0.5)) * glm::vec2(2.0, 2.0);// getMousePosition();
 }
+*/
