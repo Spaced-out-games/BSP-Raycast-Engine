@@ -3,8 +3,10 @@
 #include <windows.h>
 #include <algorithm>
 #include "Console.h"
-#include "entity.h"
+#include "ent.h"
+#include <SDL.h>
 
+IMPORT_GLOBALS
 
 void FocusConsoleWindow() {
     
@@ -18,6 +20,7 @@ class level_editor_app : public Application<windowContent> {
 private:
 
 public:
+    SDL_Event events;
     std::string fps_counter;
     float timeAccumulator = 0.0f;
     basic_console console;
@@ -28,9 +31,10 @@ public:
 
     void gui_tick(ImGuiContext& gui) override
     {
+        
         currentTime = custom_state.t;
         elapsed_time = currentTime - previous_time;
-        double& dt = *getDeltaTime();
+        float& dt = globals.dt;
         if (elapsed_time >= 0.05)  // 0.05 seconds corresponds to 20 updates per second
         {
             double fps = 1.0 / dt;  // Calculate FPS if dt > 0
@@ -51,11 +55,21 @@ public:
     
     void gl_tick() override {
 
-        auto& camera = custom_state.camController->getPawn();
+        auto& camera = custom_state.camController->camera;
+        //std::cout << "position: ";
+        //print_vec3(camera.position, true);
+        //std::cout << "rotation: ";
+
+        //print_vec2(camera.rotation, false);
+        // camera.rotation = glm::vec2(globals.t, 0.0);
+
+        //camera.rotation = glm::vec2(globals.t,0.0);
+
+        //camera.rotate(glm::vec2(0.01, 0));
         auto& controller = custom_state.camController;
 
         // Check for events
-        custom_state.last_cam_pos = custom_state.camController->getPawn().getPosition();
+        custom_state.last_cam_pos = custom_state.camController->camera.get_position();
 
 
 
@@ -84,11 +98,11 @@ public:
                 ImGui_ImplSDL2_ProcessEvent(&events);
             }
         }
-        custom_state.delta_cam_pos = custom_state.last_cam_pos - camera.getPosition();
+        custom_state.delta_cam_pos = custom_state.last_cam_pos - camera.get_position();
 
 
         // Update the Uniform Buffer of the camera
-        custom_state.camController->getPawn().updateUBO();
+        custom_state.camController->camera.update_UBO();
 
         custom_state.brushes[0].draw();
         //console.ExecuteCommand("exec test_config.cfg");
@@ -106,14 +120,17 @@ public:
 
 
 
-        custom_state.t += (*getDeltaTime());
+        custom_state.t += (getDeltaTime());
         // set t
-        custom_state.camController->getPawn().getUBO().updateData(sizeof(glm::mat4) * 2, sizeof(float), (const void*)&(custom_state.t));
+        custom_state.camController->camera.getUBO().updateData(sizeof(glm::mat4) * 2, sizeof(float), (const void*)&(custom_state.t));
 
-        double d_dt = *getDeltaTime();
+        double d_dt = getDeltaTime();
         float dt = (float)d_dt;
         // set dt
-        custom_state.camController->getPawn().getUBO().updateData((sizeof(glm::mat4) * 2) + sizeof(float), sizeof(float), (const void*)&dt);
+        custom_state.camController->camera.getUBO().updateData((sizeof(glm::mat4) * 2) + sizeof(float), sizeof(float), (const void*)&dt);
+
+        //camera.look_at(glm::vec3( 0.0,0.0,0.0));
+        globals.t += globals.dt;
 
     }
     
@@ -145,12 +162,13 @@ public:
         // Initialized the camera / controller
         //custom_state.camController
         custom_state.camController = new level_editor_controller();
-        custom_state.camController->init(getWindowDimensions(), getDeltaTime(), &(custom_state));
-        custom_state.camController->getPawn().getUBO().init();
+        custom_state.camController->camera.getUBO().init();
 
         // Bind it to slot 0
-        custom_state.camController->getPawn().getUBO().bindBase(0);
-        custom_state.camController->getPawn().setPosition({ 0, 5, 0 });
+        custom_state.camController->camera.getUBO().bindBase(0);
+        custom_state.camController->camera.set_position({ 10, 0, 0 });
+        custom_state.camController->camera.look_at(glm::vec3(0, 0, 0));
+
 
         // TODO: Make add_brush's first arguments be relative to player when using ~, and second arguments can be exact position, direct dimensions with accent
 
