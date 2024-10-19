@@ -1,4 +1,3 @@
-/*
 #pragma once
 #include "imgui.h"
 #include <vector>
@@ -12,7 +11,6 @@
 #include <array>
 #include <cmath>
 #define CONSOLE_ACCENT_CHAR '~'
-
 
 struct ConsoleArgument
 {
@@ -121,7 +119,7 @@ struct ConsoleCommand {
 
     // Default constructor
     ConsoleCommand()
-        : func([](Pawn*, Console<Pawn>&, std::string&) {  }) {}
+        : func([](Pawn*, Console<Pawn>&, std::string&) { /* No-op */ }) {}
 
     // Parameterized constructor
     ConsoleCommand(std::function<void(Pawn*, Console<Pawn>&, std::string&)> f)
@@ -290,13 +288,7 @@ Pawn* Console<Pawn>::target_application = nullptr;
 // Usage with basic_console
 #include "windowContent.h"
 
-
-
-class basic_console {};
-
-
-
-class basic_console : public Console<char> {
+class basic_console : public Console<windowContent> {
 public:
 
 
@@ -329,7 +321,7 @@ public:
     basic_console(windowContent& app_interface) : Console<windowContent>(app_interface) {
         // Register commands
 
-        
+        /*
         RegisterCommand("record_script", [this](windowContent* wc, Console<windowContent>& console, std::string& args) {
             if (args == "start") {
                 is_recording = true;
@@ -583,7 +575,7 @@ public:
         RegisterCommand("set_mat", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             exit(64);
         }, "Sets the material of a face");
-        
+        */
     }
 };
-*/
+

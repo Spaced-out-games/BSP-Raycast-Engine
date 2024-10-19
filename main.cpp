@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
 
     //cube_demo app(argc, argv); // Initializes SDL window & context
-    level_editor_app app;
+    level_editor_app app(argc, argv);
     // Initialize windowContent with the Application instance
     //windowContent content;
 

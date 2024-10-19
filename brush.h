@@ -122,67 +122,6 @@ typedef struct Brush
         init(point_cloud, 8, indices, 36, facedata, 12);
     }
 
-    void init()
-
-    {
-    // Define the unit cube vertices
-    glm::vec3 point_cloud[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f), // 0
-        glm::vec3(1.1f, 0.0f, 0.0f), // 1
-        glm::vec3(1.0f, 1.0f, 0.0f), // 2
-        glm::vec3(0.0f, 1.0f, 0.0f), // 3
-        glm::vec3(0.0f, 0.0f, 1.0f), // 4
-        glm::vec3(1.0f, 0.0f, 1.0f), // 5
-        glm::vec3(1.0f, 1.0f, 1.0f), // 6
-        glm::vec3(0.0f, 1.0f, 1.0f)  // 7
-    };
-
-    // Define the indices for the cube's faces (two triangles per face)
-    GLuint indices[] = {
-        // Bottom
-        0, 1, 2, 0, 2, 3,
-        // Top
-        4, 5, 6, 4, 6, 7,
-        // Front
-        0, 1, 5, 0, 5, 4,
-        // Back
-        2, 3, 7, 2, 7, 6,
-        // Left
-        0, 3, 7, 0, 7, 4,
-        // Right
-        1, 2, 6, 1, 6, 5
-    };
-
-    // Populate the triangles vector
-    for (size_t i = 0; i < sizeof(indices) / sizeof(GLuint); i += 3) {
-        brush_triangle_reference triRef;
-        triRef.indices[0] = indices[i];
-        triRef.indices[1] = indices[i + 1];
-        triRef.indices[2] = indices[i + 2];
-        triangles.push_back(triRef);
-    }
-
-    // Define the face data for each triangle (normal and material ID)
-    brush_face facedata[] = {
-        brush_face(point_cloud[0], point_cloud[1], point_cloud[2], 0), // Bottom face
-        brush_face(point_cloud[0], point_cloud[2], point_cloud[3], 1),
-        brush_face(point_cloud[4], point_cloud[5], point_cloud[6], 1), // Top face
-        brush_face(point_cloud[4], point_cloud[6], point_cloud[7], 1),
-        brush_face(point_cloud[0], point_cloud[1], point_cloud[5], 2), // Front face
-        brush_face(point_cloud[0], point_cloud[5], point_cloud[4], 2),
-        brush_face(point_cloud[2], point_cloud[3], point_cloud[7], 3), // Back face
-        brush_face(point_cloud[2], point_cloud[7], point_cloud[6], 3),
-        brush_face(point_cloud[0], point_cloud[3], point_cloud[7], 4), // Left face
-        brush_face(point_cloud[0], point_cloud[7], point_cloud[4], 4),
-        brush_face(point_cloud[1], point_cloud[2], point_cloud[6], 5), // Right face
-        brush_face(point_cloud[1], point_cloud[6], point_cloud[5], 5)
-    };
-
-    // Call init with the constructed data
-    init(point_cloud, 8, indices, 36, facedata, 12);
-
-    }
-
 
     void init(glm::vec3* point_cloud, size_t num_points, GLuint* indices, size_t num_indices, brush_face* facedata, size_t num_faces) {
         // Generate and bind the Vertex Array Object (VAO)
@@ -266,10 +205,6 @@ typedef struct Brush
     }
 };
 
-
-
-
-
 Shader Brush::shader;
 Texture<GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR> Brush::texture;
 int Brush::r_wireframe = false;
@@ -284,63 +219,3 @@ void brush_setup()
     Brush::set_wireframe_mode(0);
 
 }
-
-#include "entity.h"
-
-typedef struct ent_brush : public ent
-{
-    Brush brush;
-    enum : uint16_t {
-        SET_WIREFRAME = 4,
-        GET_WIREFRAME = 5
-    };
-
-
-    void init() override
-    {
-        ent::init();
-        //Brush::init();
-    }
-    void draw() override
-    {
-        brush.prepare_for_draw();
-        brush.draw();
-
-    }
-    void tick() override
-    {
-        draw(); // simply draw it.
-    }
-    void exec(ent_request stream) override{
-        bool b = 0;
-        switch (stream.command_ID) {
-        case NULL_OPERATION:
-            stream.command_ID = 0xffff; // Command executed successfully
-            break; // No-op packet
-        case INIT:
-            init();
-            stream.command_ID = 0xffff; // Command executed successfully
-            break;
-        case TICK:
-            tick();
-            stream.command_ID = 0xffff; // Command executed successfully
-            break;
-        case DRAW:
-            draw();
-            stream.command_ID = 0xffff; // Command executed successfully
-            break;
-        case SET_WIREFRAME:
-            b = 0;// stream.read_next<bool>(0);
-            Brush::set_wireframe_mode(b);
-            stream.command_ID = 0xffff; // Command executed successfully
-            break;
-        case GET_WIREFRAME:
-            //stream.write_next<bool>(static_cast<bool>r_wireframe, 0);
-            stream.command_ID = 0xffff; // Command executed successfully
-
-        default:
-            stream.command_ID = 0xfffe; // Command executed successfully
-            break;
-        }
-    }
-};

@@ -42,7 +42,7 @@ class Application
 public:
     bool recenter_mouse = false;
 
-    Application(int argc, char** argv);
+    Application();
     ~Application();
 
     // Quits the application
@@ -101,7 +101,7 @@ private:
 
 
 template <class state_t>
-Application<state_t>::Application(int argc, char** argv) :
+Application<state_t>::Application() :
     sdlWindow(nullptr),
     glContext(nullptr),
     vsync_enabled(false),

@@ -1,4 +1,5 @@
 #pragma once
+#include "windowContent.h"
 #include <windows.h>
 #include <algorithm>
 #include "Console.h"
@@ -8,7 +9,7 @@
 IMPORT_GLOBALS
 
 void FocusConsoleWindow() {
-
+    
 }
 void FocusSDLWindow(SDL_Window* sdlWindow) {
     // Bring SDL window to the foreground
@@ -26,7 +27,7 @@ public:
     double previous_time = 0;
     double currentTime = 0;
     double elapsed_time = 0.0;
-    level_editor_app(int argc, char** argv) : Application<windowContent>(argc, argv), console(custom_state) {}
+    level_editor_app(int argc, char** argv) : Application<windowContent>(), console(custom_state) {}
 
     void gui_tick(ImGuiContext& gui) override
     {
@@ -99,7 +100,6 @@ public:
         }
         custom_state.delta_cam_pos = custom_state.last_cam_pos - camera.get_position();
 
-                camera.updateUBO();
 
         // Update the Uniform Buffer of the camera
         custom_state.camController->camera.update_UBO();
@@ -185,32 +185,62 @@ public:
 
         //auto& a = custom_state.brushes[0].get_vertices();
 
-            // needs implemented properly probably
-            controller->init();
+        //a[5].material_ID = 1;
+        //custom_state.brushes[0].update_vertices(a);
+        //add_brush({ -5,0,-5 }, { 10,0.1 ,10 });
+        //add_brush({ 0,0,1 }, { 1,1,1 });
 
-            camera->getUBO().init();
-            camera->getUBO().bindBase(0);
-            //camera->setPosition({ 0, 5, 0 });
-            //camera->lookAt({ 0,0,0 });
-
-            server.add_entity<ent_brush>();
-            //brush_setup();
-            
-
-        }
-
-        void draw_brushes()
-        {
-            ent_container<ent_brush>& brushes = server.get_container<ent_brush>();
-            size_t initial_size = brushes.size();
-            for (size_t i = 0; i < initial_size; i++)
-            {
-                brushes.get(i).draw();
-            }
-        }
-
-    private:
-
+        //custom_state.B.init({ 0,0,0 }, { 1,1,1 });
+        // Disable the cursor
         
 
+
+    }
+
+
+    void draw_brushes()
+    {
+        size_t initial_size = custom_state.brushes.size();
+        auto& brushes = custom_state.brushes;
+        // Loop through existing brushes
+        for (size_t i = 0; i < initial_size; ++i) {
+
+            //brushes[i].prepare_for_draw();
+            brushes[i].draw();
+
+        }
+
+    }
+    
+    //todo: 
+        // exec <filename>
+        // save <filename.brushlist>
+        // load <filename.brushlist>
+        // compile <filename.bsp>
+        // optimize <start_seed> <end_seed>
+        // sleep <seconds>
+        // tp <position>
+        // lookat <position>
+        // noclip
+        // tp_brush <position>
+        // 
+        // It might be better to structure commands into their own file.
+        // 
+        // 
+        // help (command)
+        //typedef struct console_command
+        //{
+            // The actual function
+            // std::function function;
+            // The name of the invoked function
+            // std::string convar_name;
+            // Description of the function
+            // std::string description;
+            // Defines the number of arguments there are for each overload
+            // std::vector<std::vector<uint8_t>> argument_types;
+
+
+        //};
+
 };
+// C:\Users\devin\source\repos\BSP-Raycast-Engine\test_config.cfg
