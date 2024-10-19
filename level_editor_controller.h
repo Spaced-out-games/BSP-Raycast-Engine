@@ -1,28 +1,28 @@
 #pragma once
 
-#include "Camera.h"
-#include "Controller.h"
+#include "ent_camera.h"
+#include "ent_controller.h"
 #include <SDL.h>
 #include "debug_utils.h"
 
 // Forward declaration of windowContent
-struct windowContent;
+//struct windowContent;
 
-class level_editor_controller : public Controller<Camera> {
+class level_editor_controller : public ent_controller {
 public:
     level_editor_controller();
-    void init(glm::vec2* window_width_ptr, double* deltaTime_ptr, windowContent* window_contentnt_ptr);
+    void init();
     void onMouseMove(SDL_Event event) override;
     void CheckContinuousInput();
     void onKeyDown(SDL_Event event) override;
     void onKeyUp(SDL_Event event) override;
 
-    double* deltaTime;
+    float& deltaTime = globals.dt;
     const Uint8* state = SDL_GetKeyboardState(nullptr);
     glm::vec2 lastMousePos = { 0.0, 0.0 };
     glm::vec2 deltaMousePos = { 0.0, 0.0 };
-    float vertical_sensitivity = 50.0f;
-    float horizontal_sensitivity = 50.0f;
+    float vertical_sensitivity = 25.0f;
+    float horizontal_sensitivity = 25.0f;
     float move_speed = 10.0;
     float sprint_multiplier = 2.0f;
     float current_speed = 10.0f;
@@ -32,53 +32,60 @@ public:
     bool receiving_input = false;
     bool marked_for_processing = false;
     std::string commands;
-    windowContent* window_content;  // Pointer to windowContent to avoid circular dependency
+    //windowContent* window_content;  // Pointer to windowContent to avoid circular dependency
+    ent_camera camera;
 };
 
 #include "level_editor_controller.h"
 #include "windowContent.h"
 
-level_editor_controller::level_editor_controller() {
-    windowDimensions = nullptr;
-    deltaTime = nullptr;
+level_editor_controller::level_editor_controller(): ent_controller(camera) {
 }
 
-void level_editor_controller::init(glm::vec2* window_width_ptr, double* deltaTime_ptr, windowContent* window_contentnt_ptr) {
-    windowDimensions = window_width_ptr;
-    deltaTime = deltaTime_ptr;
-    window_content = window_contentnt_ptr;
+void level_editor_controller::init() {
+    //windowDimensions = window_width_ptr;
+    //window_content = window_content_ptr;
 }
 
 void level_editor_controller::onMouseMove(SDL_Event event) {}
 
 void level_editor_controller::CheckContinuousInput() {
+    // Calculate the difference in mouse position
     deltaMousePos = getNormalizedMousePos() - lastMousePos;
-    state = SDL_GetKeyboardState(nullptr);
-    float dt = (float)(*deltaTime);
-    Camera& target_camera = getPawn();
 
+    // Get the current state of the keyboard
+    state = SDL_GetKeyboardState(nullptr);
+    ent_camera& target_camera = camera;
+
+    // Handle camera movement based on keyboard input
     if (state[SDL_SCANCODE_W]) {
-        target_camera.moveForward(current_speed * (*deltaTime));
+        target_camera.move_forward(current_speed * deltaTime);
     }
     if (state[SDL_SCANCODE_S]) {
-        target_camera.moveForward(-current_speed * (*deltaTime));
+        target_camera.move_forward(-current_speed * deltaTime);
     }
     if (state[SDL_SCANCODE_A]) {
-        target_camera.moveRight(current_speed * (*deltaTime));
+        target_camera.move_right(-current_speed * deltaTime);
     }
     if (state[SDL_SCANCODE_D]) {
-        target_camera.moveRight(-current_speed * (*deltaTime));
+        target_camera.move_right(current_speed * deltaTime);
     }
 
-    glm::vec2& mouse = getNormalizedMousePos();
-    if ((mouse.x < -0.5f || mouse.x > 0.5f || mouse.y < -0.5f || mouse.y > 0.5f)) {
-        SDL_WarpMouseInWindow(SDL_GL_GetCurrentWindow(), windowDimensions->x / 2, windowDimensions->y / 2);
+    // Normalize mouse position and check bounds
+    glm::vec2 mouse = getNormalizedMousePos();
+    if (mouse.x < -0.5f || mouse.x > 0.5f || mouse.y < -0.5f || mouse.y > 0.5f) {
+        SDL_WarpMouseInWindow(SDL_GL_GetCurrentWindow(), windowDimensions.x / 2, windowDimensions.y / 2);
     }
-    getPawn().rotate(deltaMousePos.y * glm::radians(90.0) * vertical_sensitivity,
-        -deltaMousePos.x * glm::radians(90.0) * horizontal_sensitivity);
 
+    // Calculate rotation based on mouse movement
+    glm::vec2 delta = glm::vec2(deltaMousePos.y * glm::radians(90.0f) * vertical_sensitivity,
+        -deltaMousePos.x * glm::radians(90.0f) * horizontal_sensitivity);
+    camera.rotate(delta);
+
+    // Update lastMousePos for the next frame
     lastMousePos = getNormalizedMousePos();
 }
+
 
 void level_editor_controller::onKeyDown(SDL_Event event) {
     if (!receiving_input) {
