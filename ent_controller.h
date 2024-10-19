@@ -9,6 +9,7 @@
 
 IMPORT_GLOBALS
 
+// Define ent_controller class
 
 
 class ent_controller : public ent {
@@ -49,6 +50,8 @@ private:
     bool isPollingEvents = false; // Initialize polling events flag to false
     ent_3d_2a& mControlledEntity; // Reference to the controlled entity
 };
+
+// Constructors
 
 
 void ent_controller::inputEvent(SDL_Event& events) {
@@ -126,4 +129,6 @@ glm::vec2 ent_controller::getMousePosition() {
 glm::vec2 ent_controller::getNormalizedMousePos() {
     return ((getMousePosition() / windowDimensions) - glm::vec2(0.5f, 0.5f)) * glm::vec2(2.0f, 2.0f);
 }
+
+
 

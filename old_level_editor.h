@@ -1,11 +1,10 @@
 #pragma once
+#include "windowContent.h"
 #include <windows.h>
 #include <algorithm>
 #include "Console.h"
-#include "ent.h"
-#include <SDL.h>
+#include "entity.h"
 
-IMPORT_GLOBALS
 
 void FocusConsoleWindow() {
 
@@ -19,21 +18,19 @@ class level_editor_app : public Application<windowContent> {
 private:
 
 public:
-    SDL_Event events;
     std::string fps_counter;
     float timeAccumulator = 0.0f;
     basic_console console;
-    double previous_time = 0;
-    double currentTime = 0;
+    double previous_time = 0.0;
+    double currentTime = 0.0;
     double elapsed_time = 0.0;
     level_editor_app(int argc, char** argv) : Application<windowContent>(argc, argv), console(custom_state) {}
 
     void gui_tick(ImGuiContext& gui) override
     {
-        
         currentTime = custom_state.t;
         elapsed_time = currentTime - previous_time;
-        float& dt = globals.dt;
+        double& dt = *getDeltaTime();
         if (elapsed_time >= 0.05)  // 0.05 seconds corresponds to 20 updates per second
         {
             double fps = 1.0 / dt;  // Calculate FPS if dt > 0
@@ -51,24 +48,14 @@ public:
 
         }
     }
-    
+
     void gl_tick() override {
 
-        auto& camera = custom_state.camController->camera;
-        //std::cout << "position: ";
-        //print_vec3(camera.position, true);
-        //std::cout << "rotation: ";
-
-        //print_vec2(camera.rotation, false);
-        // camera.rotation = glm::vec2(globals.t, 0.0);
-
-        //camera.rotation = glm::vec2(globals.t,0.0);
-
-        //camera.rotate(glm::vec2(0.01, 0));
+        auto& camera = custom_state.camController->getPawn();
         auto& controller = custom_state.camController;
 
         // Check for events
-        custom_state.last_cam_pos = custom_state.camController->camera.get_position();
+        custom_state.last_cam_pos = custom_state.camController->getPawn().getPosition();
 
 
 
@@ -97,43 +84,29 @@ public:
                 ImGui_ImplSDL2_ProcessEvent(&events);
             }
         }
-        custom_state.delta_cam_pos = custom_state.last_cam_pos - camera.get_position();
+        custom_state.delta_cam_pos = custom_state.last_cam_pos - camera.getPosition();
 
-                camera.updateUBO();
 
         // Update the Uniform Buffer of the camera
-        custom_state.camController->camera.update_UBO();
+        custom_state.camController->getPawn().updateUBO();
 
         custom_state.brushes[0].draw();
-        //console.ExecuteCommand("exec test_config.cfg");
-        //brush::shader.setUniform("UV_offset_position", glm::vec3(0, custom_state.t, 0));
-
-        //if (custom_state.camController->marked_for_processing)
-       // {
-        //    std::cout << ">";
-        //    std::getline(std::cin, custom_state.camController->commands);
-        //    parse_command(custom_state.camController->commands);
-            //custom_state.camController->marked_for_processing = false;
-       // }
 
 
 
 
 
-        custom_state.t += (getDeltaTime());
-        // set t
-        custom_state.camController->camera.getUBO().updateData(sizeof(glm::mat4) * 2, sizeof(float), (const void*)&(custom_state.t));
 
-        double d_dt = getDeltaTime();
+        custom_state.t += (*getDeltaTime());
+        custom_state.camController->getPawn().getUBO().updateData(sizeof(glm::mat4) * 2, sizeof(float), (const void*)&(custom_state.t));
+
+        double d_dt = *getDeltaTime();
         float dt = (float)d_dt;
-        // set dt
-        custom_state.camController->camera.getUBO().updateData((sizeof(glm::mat4) * 2) + sizeof(float), sizeof(float), (const void*)&dt);
 
-        //camera.look_at(glm::vec3( 0.0,0.0,0.0));
-        globals.t += globals.dt;
+        custom_state.camController->getPawn().getUBO().updateData((sizeof(glm::mat4) * 2) + sizeof(float), sizeof(float), (const void*)&dt);
 
     }
-    
+
 
 
     void bootstrap() override {
@@ -153,64 +126,46 @@ public:
         */
 
 
-
-        console.target_application = &(custom_state);
-        console.open = &(custom_state.input_to_imgui);
+        // ignore these, the console isn't real right now
+        //console.target_application = &(custom_state);
+        //console.open = &(custom_state.input_to_imgui);
 
 
 
         // Initialized the camera / controller
         //custom_state.camController
         custom_state.camController = new level_editor_controller();
-        custom_state.camController->camera.getUBO().init();
+        custom_state.camController->init(getWindowDimensions(), getDeltaTime(), &(custom_state));
+        custom_state.camController->getPawn().getUBO().init();
 
         // Bind it to slot 0
-        custom_state.camController->camera.getUBO().bindBase(0);
-        custom_state.camController->camera.set_position({ 10, 0, 0 });
-        custom_state.camController->camera.look_at(glm::vec3(0, 0, 0));
+        custom_state.camController->getPawn().getUBO().bindBase(0);
+        custom_state.camController->getPawn().setPosition({ 0, 5, 0 });
 
 
-        // TODO: Make add_brush's first arguments be relative to player when using ~, and second arguments can be exact position, direct dimensions with accent
-
-        //custom_state.brushes.push_back({{ -5, 0, -5 }, { 10, 0.1, 10}});
-        //console.ExecuteCommand("add_brush -5 0 -5 ~10 ~0.1 ~10");
-        //brush B(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
         custom_state.brushes.emplace_back();
         brush_setup();
         custom_state.brushes[0].prepare_for_draw();
 
-        //custom_state.brushes[0].draw();
-        //custom_state.brushes[0].extrude_triangle(a, 0, 1, 2, 0.5);
-        //console.ExecuteCommand("exec test_config.cfg");
 
-        //auto& a = custom_state.brushes[0].get_vertices();
 
-            // needs implemented properly probably
-            controller->init();
 
-            camera->getUBO().init();
-            camera->getUBO().bindBase(0);
-            //camera->setPosition({ 0, 5, 0 });
-            //camera->lookAt({ 0,0,0 });
+    }
 
-            server.add_entity<ent_brush>();
-            //brush_setup();
-            
+
+    void draw_brushes()
+    {
+        size_t initial_size = custom_state.brushes.size();
+        auto& brushes = custom_state.brushes;
+        // Loop through existing brushes
+        for (size_t i = 0; i < initial_size; ++i) {
+
+            //brushes[i].prepare_for_draw();
+            brushes[i].draw();
 
         }
 
-        void draw_brushes()
-        {
-            ent_container<ent_brush>& brushes = server.get_container<ent_brush>();
-            size_t initial_size = brushes.size();
-            for (size_t i = 0; i < initial_size; i++)
-            {
-                brushes.get(i).draw();
-            }
-        }
+    }
 
-    private:
-
-        
 
 };

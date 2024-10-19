@@ -4,6 +4,7 @@
 #include "ent_controller.h"
 #include <SDL.h>
 #include "debug_utils.h"
+//#include "ent_controller.h"
 
 // Forward declaration of windowContent
 //struct windowContent;
@@ -36,8 +37,6 @@ public:
     ent_camera camera;
 };
 
-#include "level_editor_controller.h"
-#include "windowContent.h"
 
 level_editor_controller::level_editor_controller(): ent_controller(camera) {
 }
@@ -111,3 +110,4 @@ void level_editor_controller::onKeyUp(SDL_Event event) {
         break;
     }
 }
+//*/

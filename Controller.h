@@ -122,8 +122,8 @@ void Controller<Pawn>::inputEvent(SDL_Event& events) {
             break;
         default:
             break;
-        //}
-    }
+        }
+    //}
 }
 
 template <class Pawn>
