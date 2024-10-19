@@ -84,7 +84,7 @@ float calculateLightIntensity(vec3 normal, vec3 worldPos) {
 }
 
 void main() {
-    if (primType == 0)
+    if (primType == 1)
     {
         FragColor = vec4(1.0, 1.0, 1.0, 1.0);
         return;
