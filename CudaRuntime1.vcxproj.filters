@@ -82,9 +82,6 @@
     <ClInclude Include="shader_collection.h">
       <Filter>include\shader_system</Filter>
     </ClInclude>
-    <ClInclude Include="freecam.h">
-      <Filter>include\GameIO</Filter>
-    </ClInclude>
     <ClInclude Include="Console.h">
       <Filter>include\GameIO</Filter>
     </ClInclude>
@@ -118,9 +115,19 @@
     <ClInclude Include="server.h">
       <Filter>include\server</Filter>
     </ClInclude>
-    <ClInclude Include="entity.h">
+    <ClInclude Include="ent.h">
       <Filter>include\server</Filter>
     </ClInclude>
+    <ClInclude Include="movable_ent.h">
+      <Filter>include\server</Filter>
+    </ClInclude>
+    <ClInclude Include="ent_camera.h">
+      <Filter>include\server</Filter>
+    </ClInclude>
+    <ClInclude Include="ent_controller.h">
+      <Filter>include\GameIO</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">

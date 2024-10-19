@@ -35,10 +35,13 @@
     <ClInclude Include="cube_demo.h" />
     <ClInclude Include="debug_utils.h" />
     <ClInclude Include="eBuffer.h" />
-    <ClInclude Include="entity.h" />
-    <ClInclude Include="freecam.h" />
+    <ClInclude Include="ent.h" />
+    <ClInclude Include="ent_camera.h" />
+    <ClInclude Include="ent_controller.h" />
+    <ClInclude Include="globals.h" />
     <ClInclude Include="level_editor.h" />
     <ClInclude Include="level_editor_controller.h" />
+    <ClInclude Include="movable_ent.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="shader_collection.h" />
