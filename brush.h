@@ -68,7 +68,7 @@ typedef struct Brush
         // Define the unit cube vertices
         glm::vec3 point_cloud[] = {
             glm::vec3(0.0f, 0.0f, 0.0f), // 0
-            glm::vec3(1.1f, 0.0f, 0.0f), // 1
+            glm::vec3(1.0f, 0.0f, 0.0f), // 1
             glm::vec3(1.0f, 1.0f, 0.0f), // 2
             glm::vec3(0.0f, 1.0f, 0.0f), // 3
             glm::vec3(0.0f, 0.0f, 1.0f), // 4
@@ -105,17 +105,17 @@ typedef struct Brush
         // Define the face data for each triangle (normal and material ID)
         brush_face facedata[] = {
             brush_face(point_cloud[0], point_cloud[1], point_cloud[2], 0), // Bottom face
-            brush_face(point_cloud[0], point_cloud[2], point_cloud[3], 1),
-            brush_face(point_cloud[4], point_cloud[5], point_cloud[6], 1), // Top face
-            brush_face(point_cloud[4], point_cloud[6], point_cloud[7], 1),
-            brush_face(point_cloud[0], point_cloud[1], point_cloud[5], 2), // Front face
-            brush_face(point_cloud[0], point_cloud[5], point_cloud[4], 2),
-            brush_face(point_cloud[2], point_cloud[3], point_cloud[7], 3), // Back face
-            brush_face(point_cloud[2], point_cloud[7], point_cloud[6], 3),
-            brush_face(point_cloud[0], point_cloud[3], point_cloud[7], 4), // Left face
-            brush_face(point_cloud[0], point_cloud[7], point_cloud[4], 4),
-            brush_face(point_cloud[1], point_cloud[2], point_cloud[6], 5), // Right face
-            brush_face(point_cloud[1], point_cloud[6], point_cloud[5], 5)
+            brush_face(point_cloud[0], point_cloud[2], point_cloud[3], 0),
+            brush_face(point_cloud[4], point_cloud[5], point_cloud[6], 0), // Top face
+            brush_face(point_cloud[4], point_cloud[6], point_cloud[7], 0),
+            brush_face(point_cloud[0], point_cloud[1], point_cloud[5], 0), // Front face
+            brush_face(point_cloud[0], point_cloud[5], point_cloud[4], 0),
+            brush_face(point_cloud[2], point_cloud[3], point_cloud[7], 0), // Back face
+            brush_face(point_cloud[2], point_cloud[7], point_cloud[6], 0),
+            brush_face(point_cloud[0], point_cloud[3], point_cloud[7], 0), // Left face
+            brush_face(point_cloud[0], point_cloud[7], point_cloud[4], 0),
+            brush_face(point_cloud[1], point_cloud[2], point_cloud[6], 0), // Right face
+            brush_face(point_cloud[1], point_cloud[6], point_cloud[5], 0)
         };
 
         // Call init with the constructed data
@@ -200,14 +200,14 @@ typedef struct Brush
     // todo: make it actually set the right uniforms for the vertex shader (so that the fragment shader outputs pure green when in wireframe)
     static void set_wireframe_mode(int mode)
     {
-        //shader.setUniform("glPrimitiveType", mode);
+        shader.setUniform("glPrimitiveType", mode);
         r_wireframe = mode;
     }
 };
 
 Shader Brush::shader;
 Texture<GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR> Brush::texture;
-int Brush::r_wireframe = true;
+int Brush::r_wireframe = false;
 
 void brush_setup()
 {
@@ -216,7 +216,6 @@ void brush_setup()
     //GLfloat maxAniso;
     //glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso);
     Brush::texture.loadFromFile("resources/images/atlas.png");
-    Brush::set_wireframe_mode(1);
-    Brush::shader.setUniform("glPrimitiveType", 1);
+    Brush::set_wireframe_mode(0);
 
 }
