@@ -39,7 +39,7 @@ public:
 #include "level_editor_controller.h"
 #include "windowContent.h"
 
-level_editor_controller::level_editor_controller(): ent_controller(camera) {
+level_editor_controller::level_editor_controller(): ent_controller(&camera) {
 }
 
 void level_editor_controller::init() {
