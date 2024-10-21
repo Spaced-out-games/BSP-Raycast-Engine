@@ -2,7 +2,7 @@
 #include "Mesh.h"
 #include "shader.h"
 #include "texture.h"
-
+#include "glm_master.h"
 
 
 
@@ -11,19 +11,19 @@
 
 struct vtx_2d_tex
 {
-	glm::vec2 position;
-	glm::vec2 UVs;
+	vec2 position;
+	vec2 UVs;
     // Constructor to initialize position and UVs
-    vtx_2d_tex(const glm::vec2& pos, const glm::vec2& uvs)
+    vtx_2d_tex(const vec2& pos, const vec2& uvs)
         : position(pos), UVs(uvs) {}
 };
 
 struct vtx_3d_tex
 {
-    glm::vec3 position;
-    glm::vec2 UVs;
+    vec3 position;
+    vec2 UVs;
     // Constructor to initialize position and UVs
-    vtx_3d_tex(const glm::vec3& pos, const glm::vec2& uvs): position(pos), UVs(uvs) {}
+    vtx_3d_tex(const vec3& pos, const vec2& uvs): position(pos), UVs(uvs) {}
 };
 
 
@@ -151,7 +151,7 @@ private:
 class tex_dynamic_mesh_3D
 {
 public:
-    glm::mat4 model_transform;
+    mat4 model_transform;
 
     tex_dynamic_mesh_3D(): model_transform(1.0f)
     {
@@ -267,7 +267,7 @@ public:
 
 
     }
-    void set_transform(glm::mat4 new_transform)
+    void set_transform(mat4 new_transform)
     {
         model_transform = new_transform;
         shader.setUniform("model", model_transform);

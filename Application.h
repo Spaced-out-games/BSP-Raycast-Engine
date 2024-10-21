@@ -2,7 +2,7 @@
 #define SDL_MAIN_HANDLED
 
 #include <SDL.h>
-#include <glm/glm.hpp>
+#include "glm_master.h"
 #include <GL/glew.h>
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
@@ -21,19 +21,10 @@
 // Make private setters that Application can alter through a proxy structure
 // Make public const getters
 
-
-struct Globals {
-    float t; // Time
-    float dt; // Delta time
-    glm::vec2 window_dimensions; // Window dimensions
-
-    // Private constructor to prevent instantiation
-    Globals() : t(0.0f), dt(0.0f), window_dimensions(1920.0f, 1080.0f) {}
+#include "globals.h"
 
 
-};
 
-static Globals globals;
 
 
 template <class state_t>
@@ -59,9 +50,9 @@ public:
     static float& getDeltaTime() { return globals.dt; }
     static float& getTime() { return globals.t; }
     SDL_Window* getWindow();
-    glm::vec2& get_window_dimensions() { return globals.window_dimensions; }
+    vec2& get_window_dimensions() { return globals.window_dimensions; }
 
-    void set_window_dimensions(glm::uvec2 new_dimensions);
+    void set_window_dimensions(uvec2 new_dimensions);
     void setCustomState(const state_t& state);
 
     ImGuiContext* get_gui() const;
@@ -143,6 +134,11 @@ void Application<state_t>::init_SDL()
         std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
         exit(1);
     }
+
+    // Hide the mouse cursor
+    SDL_ShowCursor(SDL_DISABLE);
+    // Capture the mouse within the window
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 
     // Set OpenGL version
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -251,7 +247,7 @@ SDL_GLContext& Application<state_t>::getContext()
 }
 
 template <class state_t>
-void Application<state_t>::set_window_dimensions(glm::uvec2 new_dimensions)
+void Application<state_t>::set_window_dimensions(uvec2 new_dimensions)
 {
     globals.window_dimensions.x = new_dimensions.x;
     globals.window_dimensions.y = new_dimensions.y;

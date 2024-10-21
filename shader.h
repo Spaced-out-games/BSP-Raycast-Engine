@@ -5,8 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "glm_master.h"
 #include "shader_collection.h"
 
 struct Shader {
@@ -128,9 +127,9 @@ struct Shader {
      * @brief Sets a uniform matrix4 value in the shader program.
      *
      * @param uniform_ID The name of the uniform variable.
-     * @param matrix4 The glm::mat4 value to set.
+     * @param matrix4 The mat4 value to set.
      */
-    void setUniform(const char* uniform_ID, const glm::mat4& matrix4) const {
+    void setUniform(const char* uniform_ID, const mat4& matrix4) const {
         CHECK_GL_ERROR();
 
         GLint uniformCode = glGetUniformLocation(ShaderProgram, uniform_ID);
@@ -167,9 +166,9 @@ struct Shader {
      * @brief Sets a uniform vec3 value in the shader program.
      *
      * @param uniform_ID The name of the uniform variable.
-     * @param vector3 The glm::vec3 value to set.
+     * @param vector3 The vec3 value to set.
      */
-    void setUniform(const char* uniform_ID, const glm::vec3& vector3) const {
+    void setUniform(const char* uniform_ID, const vec3& vector3) const {
         GLint uniformCode = glGetUniformLocation(ShaderProgram, uniform_ID);
         #ifdef _DEBUG
         if (uniformCode != -1) {
