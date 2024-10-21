@@ -4,10 +4,18 @@ out vec4 FragColor;  // Output color
 //flat in uint matID;  // Input material ID
 //flat in vec3 Normal; // Normal vector from the vertex shader
 in vec3 worldPos;    // Input world position from vertex shader
-flat in int primType;
 uniform sampler2D texture1;  // Texture sampler
-in float t;
-in float dt;
+
+
+layout(std140) uniform Globals{
+    mat4 view;
+    mat4 projection;
+    int r_rendermode;
+    float t;
+    float dt;
+};
+
+
 //uniform 
 vec3 lightPos = vec3(0.0,dt,0.0);       // Position of the light source
 struct brush_face {
@@ -84,7 +92,7 @@ float calculateLightIntensity(vec3 normal, vec3 worldPos) {
 }
 
 void main() {
-    if (primType == 1)
+    if (r_rendermode == 0)
     {
         FragColor = vec4(1.0, 1.0, 1.0, 1.0);
         return;
