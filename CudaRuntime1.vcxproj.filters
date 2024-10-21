@@ -30,17 +30,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shader_manager.h">
-      <Filter>include\shader_system</Filter>
-    </ClInclude>
     <ClInclude Include="shader.h">
       <Filter>include\shader_system</Filter>
     </ClInclude>
     <ClInclude Include="file_utils.h">
       <Filter>include\FileIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Application.h">
-      <Filter>include\Core</Filter>
     </ClInclude>
     <ClInclude Include="Controller.h">
       <Filter>include\GameIO</Filter>
@@ -54,9 +48,6 @@
     <ClInclude Include="Mesh.h">
       <Filter>include\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="SIMD_float_128.h" />
-    <ClInclude Include="SIMD_float_256.h" />
-    <ClInclude Include="SIMD_float_512.h" />
     <ClInclude Include="windowContent.h" />
     <ClInclude Include="vBuffer.h">
       <Filter>include\Geometry</Filter>
@@ -128,6 +119,11 @@
       <Filter>include\GameIO</Filter>
     </ClInclude>
     <ClInclude Include="globals.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="glm_master.h" />
+    <ClInclude Include="Application.h">
+      <Filter>include\Applications</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
@@ -156,9 +152,6 @@
     </Filter>
     <Filter Include="include\FileIO">
       <UniqueIdentifier>{d1371336-2731-4c35-a8bb-60929ef74f6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Core">
-      <UniqueIdentifier>{d2206abb-5c90-4957-bd0b-3d3c5ff7006c}</UniqueIdentifier>
     </Filter>
     <Filter Include="ComputeEngine">
       <UniqueIdentifier>{1cc5bba6-2750-4b5f-a544-e14421cf15b0}</UniqueIdentifier>

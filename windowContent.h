@@ -8,7 +8,7 @@
 class level_editor_controller;
 
 struct windowContent {
-    std::vector<Brush> brushes;
+    std::vector<ent_brush> brushes;
     float t = 0.0f;
     tex_dynamic_mesh_3D cube;
     level_editor_controller* camController = nullptr;  // Pointer to level_editor_controller
@@ -32,7 +32,7 @@ windowContent::~windowContent() {
     // Destroy all the Brush meshes
     for (size_t i = 0; i < brushes.size(); i++)
     {
-        brushes[i].destroy();
+        brushes[i].~ent_brush();
     }
 }
 
