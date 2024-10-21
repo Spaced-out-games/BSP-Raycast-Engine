@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <iostream>
-#include <glm/glm.hpp>
+#include "glm_master.h"
 #include "GL\glew.h"
 #include "Application.h"
 #include "ent.h"
@@ -11,10 +11,27 @@ IMPORT_GLOBALS
 
 
 
+#include <SDL.h>
+#include <glm/vec2.hpp>
+
+class ent_3d_2a; // Forward declaration of ent_3d_2a
+
 class ent_controller : public ent {
 public:
-    ent_controller(ent_3d_2a& controlledEntity) : mControlledEntity(controlledEntity) {}
+    // Default constructor (without controlled entity)
+    ent_controller() : mControlledEntity(nullptr), lastMousePosition{ 0, 0 } {
+        // Initialize any default settings or values here if needed
+    }
+
+    // Constructor that takes a pointer to an ent_3d_2a entity
+    ent_controller(ent_3d_2a* controlledEntity) : mControlledEntity(controlledEntity), lastMousePosition{ 0, 0 } {}
+
     ~ent_controller() {}
+
+    const char* get_name() const override
+    {
+        return "ent_controller";
+    }
 
     void inputEvent(SDL_Event& events);
     void enablePollingEvents();
@@ -38,18 +55,22 @@ public:
         windowDimensions = { static_cast<unsigned int>(event.window.data1), static_cast<unsigned int>(event.window.data2) };
     }
 
-    glm::vec2 getMousePosition();
-    glm::vec2 getNormalizedMousePos();
+    vec2 getMousePosition();
+    vec2 getNormalizedMousePos();
+    vec2 get_delta_mouse_pos();
+    vec2 get_delta_mouse_pos_normalized();
+    vec2 get_mouse_pos();
+    vec2 get_mouse_pos_normalized();
 
-    glm::vec2& windowDimensions = globals.window_dimensions; // Assuming 'globals' is defined elsewhere
+    vec2& windowDimensions = globals.window_dimensions; // Assuming 'globals' is defined elsewhere
     glm::uvec2 mousePosition;
 
 private:
     SDL_Event events;
     bool isPollingEvents = false; // Initialize polling events flag to false
-    ent_3d_2a& mControlledEntity; // Reference to the controlled entity
+    ent_3d_2a* mControlledEntity; // Pointer to the controlled entity
+    vec2 lastMousePosition; // Store the last mouse position for delta calculations
 };
-
 
 void ent_controller::inputEvent(SDL_Event& events) {
     if (!isPollingEvents) return;
@@ -65,6 +86,7 @@ void ent_controller::inputEvent(SDL_Event& events) {
         onKeyDown(events);
         break;
     case SDL_MOUSEMOTION:
+        lastMousePosition = getMousePosition(); // Update last mouse position on mouse move
         onMouseMove(events);
         break;
     case SDL_MOUSEBUTTONDOWN:
@@ -117,13 +139,32 @@ void ent_controller::disablePollingEvents() {
     isPollingEvents = false;
 }
 
-glm::vec2 ent_controller::getMousePosition() {
+vec2 ent_controller::getMousePosition() {
     int x, y;
     SDL_GetMouseState(&x, &y);
-    return glm::vec2(static_cast<float>(x), static_cast<float>(y));
+    return vec2(static_cast<float>(x), static_cast<float>(y));
 }
 
-glm::vec2 ent_controller::getNormalizedMousePos() {
-    return ((getMousePosition() / windowDimensions) - glm::vec2(0.5f, 0.5f)) * glm::vec2(2.0f, 2.0f);
+vec2 ent_controller::getNormalizedMousePos() {
+    return ((getMousePosition() / windowDimensions) - vec2(0.5f, 0.5f)) * vec2(2.0f, 2.0f);
 }
+
+vec2 ent_controller::get_delta_mouse_pos() {
+    int x, y;
+    SDL_GetRelativeMouseState(&x, &y);
+    return vec2(static_cast<float>(x), static_cast<float>(y));
+}
+
+vec2 ent_controller::get_delta_mouse_pos_normalized() {
+    return get_delta_mouse_pos() / windowDimensions; // Normalizing relative mouse delta
+}
+
+vec2 ent_controller::get_mouse_pos() {
+    return getMousePosition(); // Return current mouse position
+}
+
+vec2 ent_controller::get_mouse_pos_normalized() {
+    return getNormalizedMousePos(); // Return normalized current mouse position
+}
+
 
