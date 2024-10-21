@@ -9,14 +9,15 @@
 #include "Application.h"
 
 #include <math.h>
-//#include "cube_demo.h"
+#include "globals.h"
 
 #include "level_editor.h"
 
 
 
 
-
+// Texture and other resources should probably have their constructors deferred to a resource_manager that returns a pointer to the type, in which case, entities bind before the next draw call.
+// This can build off of the planned ent_manager / server system that is on the horizon...
 
 
 
