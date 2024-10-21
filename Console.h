@@ -11,7 +11,35 @@
 #include <array>
 #include <cmath>
 #define CONSOLE_ACCENT_CHAR '~'
+//todo: 
+        // exec <filename>
+        // save <filename.brushlist>
+        // load <filename.brushlist>
+        // compile <filename.bsp>
+        // optimize <start_seed> <end_seed>
+        // sleep <seconds>
+        // tp <position>
+        // lookat <position>
+        // noclip
+        // tp_brush <position>
+        // 
+        // It might be better to structure commands into their own file.
+        // 
+        // 
+        // help (command)
+        //typedef struct console_command
+        //{
+            // The actual function
+            // std::function function;
+            // The name of the invoked function
+            // std::string convar_name;
+            // Description of the function
+            // std::string description;
+            // Defines the number of arguments there are for each overload
+            // std::vector<std::vector<uint8_t>> argument_types;
 
+
+        //};
 struct ConsoleArgument
 {
     std::string argument_content;
