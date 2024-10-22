@@ -1,7 +1,9 @@
+#pragma once
 #include <typeinfo>
 #include <iostream>
+#include <string>
 
-template <typename inheritor_t = void>
+
 class Resource {
 public:
     Resource() = default;                        // Default constructor
@@ -16,12 +18,12 @@ public:
     Resource& operator=(Resource&&) = default;   // Enable move assignment
 
     // Pure virtual functions to be overridden in derived classes
-    virtual void load() = 0;
-    virtual void save() = 0;
-    virtual void use() = 0;                       // Pure virtual function for using the resource
+    virtual void load(const std::string& path) {};
+    virtual void save(const std::string& path) {};
+    virtual void use() {};                       // Pure virtual function for using the resource
 
     // Copy function to be overridden in derived classes
-    virtual Resource* copy() const = 0;
+    virtual Resource* copy() const { return nullptr; };
 
     // Get's the name of the resource type
     virtual const char* get_name() const { return "Resource<>"; }
