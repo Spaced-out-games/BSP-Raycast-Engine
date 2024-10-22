@@ -28,6 +28,8 @@ To draw:
 #include "eBuffer.h" // Assuming eBuffer is in a header file
 #include "vArray.h"  // Assuming vArray is in a header file
 
+#include "res_mesh.h"
+
 template <typename vertex_t, GLenum DrawingType, GLenum PrimitiveType>
 class Mesh {
 public:
