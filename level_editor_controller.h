@@ -11,6 +11,7 @@
 class level_editor_controller : public ent_controller {
 public:
     level_editor_controller();
+    level_editor_controller(ent_3d_2a* controlledEntity) : ent_controller(controlledEntity) {}
     void onMouseMove(SDL_Event event) override;
     void CheckContinuousInput();
     void onKeyDown(SDL_Event event) override;
@@ -18,6 +19,7 @@ public:
     void init() override;
     void tick() override {};
     void exec(const ent_command& command) override {};
+
 
     float& deltaTime = globals.dt;
     const Uint8* state = SDL_GetKeyboardState(nullptr);
@@ -35,13 +37,13 @@ public:
     bool marked_for_processing = false;
     std::string commands;
     //windowContent* window_content;  // Pointer to windowContent to avoid circular dependency
-    ent_camera camera;
+    //ent_camera camera;
 };
 
 #include "level_editor_controller.h"
 #include "windowContent.h"
 
-level_editor_controller::level_editor_controller(): ent_controller(&camera) {
+level_editor_controller::level_editor_controller() {
 }
 
 void level_editor_controller::init(){
@@ -49,28 +51,34 @@ void level_editor_controller::init(){
     //window_content = window_content_ptr;
 }
 
+//void level_editor_controller::init() override
+//{
+
+//}
+
 void level_editor_controller::onMouseMove(SDL_Event event) {}
 
 void level_editor_controller::CheckContinuousInput() {
     // Calculate the difference in mouse position
     deltaMousePos = getNormalizedMousePos() - lastMousePos;
 
+
     // Get the current state of the keyboard
     state = SDL_GetKeyboardState(nullptr);
-    ent_camera& target_camera = camera;
+    ent_3d_2a& target_object = *mControlledEntity;
 
     // Handle camera movement based on keyboard input
     if (state[SDL_SCANCODE_W]) {
-        target_camera.move_forward(current_speed * deltaTime);
+        target_object.move_forward(current_speed * deltaTime);
     }
     if (state[SDL_SCANCODE_S]) {
-        target_camera.move_forward(-current_speed * deltaTime);
+        target_object.move_forward(-current_speed * deltaTime);
     }
     if (state[SDL_SCANCODE_A]) {
-        target_camera.move_right(-current_speed * deltaTime);
+        target_object.move_right(-current_speed * deltaTime);
     }
     if (state[SDL_SCANCODE_D]) {
-        target_camera.move_right(current_speed * deltaTime);
+        target_object.move_right(current_speed * deltaTime);
     }
 
     // Normalize mouse position and check bounds
@@ -82,7 +90,7 @@ void level_editor_controller::CheckContinuousInput() {
     // Calculate rotation based on mouse movement
     glm::vec2 delta = glm::vec2(deltaMousePos.y * glm::radians(90.0f) * vertical_sensitivity,
         -deltaMousePos.x * glm::radians(90.0f) * horizontal_sensitivity);
-    camera.rotate(delta);
+    target_object.rotate(delta);
 
     // Update lastMousePos for the next frame
     lastMousePos = getNormalizedMousePos();
