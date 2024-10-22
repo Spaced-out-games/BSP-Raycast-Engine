@@ -11,11 +11,13 @@
 class level_editor_controller : public ent_controller {
 public:
     level_editor_controller();
-    void init();
     void onMouseMove(SDL_Event event) override;
     void CheckContinuousInput();
     void onKeyDown(SDL_Event event) override;
     void onKeyUp(SDL_Event event) override;
+    void init() override;
+    void tick() override {};
+    void exec(const ent_command& command) override {};
 
     float& deltaTime = globals.dt;
     const Uint8* state = SDL_GetKeyboardState(nullptr);
@@ -42,7 +44,7 @@ public:
 level_editor_controller::level_editor_controller(): ent_controller(&camera) {
 }
 
-void level_editor_controller::init() {
+void level_editor_controller::init(){
     //windowDimensions = window_width_ptr;
     //window_content = window_content_ptr;
 }
