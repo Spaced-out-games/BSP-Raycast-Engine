@@ -11,6 +11,9 @@
 #include <array>
 #include <cmath>
 #define CONSOLE_ACCENT_CHAR '~'
+
+
+/*
 //todo: 
         // exec <filename>
         // save <filename.brushlist>
@@ -147,7 +150,7 @@ struct ConsoleCommand {
 
     // Default constructor
     ConsoleCommand()
-        : func([](Pawn*, Console<Pawn>&, std::string&) { /* No-op */ }) {}
+        : func([](Pawn*, Console<Pawn>&, std::string&) {  }) {}
 
     // Parameterized constructor
     ConsoleCommand(std::function<void(Pawn*, Console<Pawn>&, std::string&)> f)
@@ -180,9 +183,10 @@ struct ConsoleCommand {
 };
 
 
-template <typename Pawn>
+//template <typename Pawn>
 class Console {
 public:
+    using Pawn = void;
     static std::unordered_map<std::string, ConsoleCommand<Pawn>> commands;
     static Pawn* target_application;
     bool* open;
@@ -316,7 +320,7 @@ Pawn* Console<Pawn>::target_application = nullptr;
 // Usage with basic_console
 #include "windowContent.h"
 
-class basic_console : public Console<windowContent> {
+class basic_console : public Console {
 public:
 
 
@@ -349,7 +353,7 @@ public:
     basic_console(windowContent& app_interface) : Console<windowContent>(app_interface) {
         // Register commands
 
-        /*
+        
         RegisterCommand("record_script", [this](windowContent* wc, Console<windowContent>& console, std::string& args) {
             if (args == "start") {
                 is_recording = true;
@@ -603,7 +607,6 @@ public:
         RegisterCommand("set_mat", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             exit(64);
         }, "Sets the material of a face");
-        */
     }
 };
-
+*/
