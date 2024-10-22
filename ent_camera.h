@@ -36,6 +36,15 @@ class ent_camera: public ent_3d_2a
 		void update_UBO();
 		void bind_UBO(GLuint program); // might be nice to add a no-arg variant
 
+		// need to implement these
+
+		virtual void init() override {};
+		virtual void tick() override {};
+		virtual void exec(const ent_command& command) override {};
+
+
+
+
 		void look_at_object(ent_3d_2a& target_object)
 		{
 			ent_3d_2a::look_at(target_object.get_position());
