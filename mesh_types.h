@@ -1,14 +1,20 @@
 #pragma once
 #include "Mesh.h"
-#include "shader.h"
+#include "res_shader.h"
 #include "texture.h"
 #include "glm_master.h"
 
 
+class res_static_mesh : public res_mesh, ent
+{
+    // store a vector for the final position
+    glm::vec3 position;
+    res_static_mesh(vec3 final_position): position(final_position) {}
+    const char* get_name() const override { return "res_static_mesh"; }
+};
 
 
-
-
+/*
 struct vtx_2d_tex
 {
 	vec2 position;
@@ -287,3 +293,4 @@ public:
 };
 
 
+*/
