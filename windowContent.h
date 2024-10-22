@@ -10,7 +10,7 @@ class level_editor_controller;
 struct windowContent {
     std::vector<ent_brush> brushes;
     float t = 0.0f;
-    tex_dynamic_mesh_3D cube;
+    //tex_dynamic_mesh_3D cube;
     level_editor_controller* camController = nullptr;  // Pointer to level_editor_controller
     glm::vec3 last_cam_pos;
     glm::vec3 delta_cam_pos;
