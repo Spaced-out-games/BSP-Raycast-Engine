@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "Mesh.h"
-#include "shader.h"
+#include "res_shader.h"
 #include "Texture.h"
 #include "shapes.h"
 #include <array>
@@ -49,17 +49,22 @@ typedef struct brush_triangle_reference
 class ent_brush : public ent  // Inherit from ent
 {
 public:
-    static Shader shader;
+    static res_shader shader;
     static Texture<GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR> texture;
     GLuint VAO = 0;
     GLuint vertex_VBO = 0;
     GLuint face_SSBO = 0; // stores a brush_face[]
     GLuint solid_EBO = 0;
     GLuint wireframe_EBO = 0;
+    // needs implemented
+    virtual void init() override {};
+    virtual void tick() override {};
+
+    virtual void exec(const ent_command& command) override {};
 
     const char* get_name() const override
     {
-        return "ent<ent_brush>";
+        return "ent_brush";
     }
 
     // Set of unique points
@@ -221,7 +226,7 @@ public:
         glDrawElements(GL_TRIANGLES, triangles.size() * 3, GL_UNSIGNED_INT, 0);
     }
 
-    static void init() { brush_setup(); }
+    //static void init() { brush_setup(); }
         
 
 
@@ -260,7 +265,7 @@ public:
         }
 };
 
-Shader ent_brush::shader;
+res_shader ent_brush::shader;
 
 // Texture and other resources should probably have their constructors deferred to a resource_manager that returns a pointer to the type, in which case, entities bind before the next draw call.
 // This can build off of the planned ent_manager / server system that is on the horizon...
@@ -270,7 +275,7 @@ Texture<GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEA
 
 void brush_setup()
 {
-    ent_brush::shader.initFromFiles("resources/shaders/brush_vertex.glsl", "resources/shaders/brush_frag.glsl");
+    ent_brush::shader = std::move(res_shader("resources/shaders/brush_vertex.glsl", "resources/shaders/brush_frag.glsl"));
     //ent_brush::shader.use();
     //GLfloat maxAniso;
     //glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso);
