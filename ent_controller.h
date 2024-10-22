@@ -64,11 +64,11 @@ public:
 
     vec2& windowDimensions = globals.window_dimensions; // Assuming 'globals' is defined elsewhere
     glm::uvec2 mousePosition;
+    ent_3d_2a* mControlledEntity; // Pointer to the controlled entity
 
 private:
     SDL_Event events;
     bool isPollingEvents = false; // Initialize polling events flag to false
-    ent_3d_2a* mControlledEntity; // Pointer to the controlled entity
     vec2 lastMousePosition; // Store the last mouse position for delta calculations
 };
 
