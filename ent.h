@@ -83,14 +83,13 @@ struct ent {
     ent(ent&&) = default;                  // Enable moving
     ent& operator=(ent&&) = default;       // Enable move assignment
 
+    // Pure virtual functions
 
-
-    virtual void init() {};
-    virtual void tick() {};
-
+    virtual void init() = 0;
+    virtual void tick() = 0;
     virtual const char* get_name() const = 0;
 
-    virtual void exec(const ent_command& command) {};
+    virtual void exec(const ent_command& command) = 0;
 
 private:
 
