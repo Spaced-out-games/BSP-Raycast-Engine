@@ -114,7 +114,7 @@ public:
     }
 
     void bootstrap() override {
-        ent_brush::init();
+        brush_setup();
 
         console.target_application = &(custom_state);
         console.open = &(custom_state.input_to_imgui);
