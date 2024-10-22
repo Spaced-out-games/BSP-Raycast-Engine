@@ -44,6 +44,8 @@
     <ClInclude Include="level_editor_controller.h" />
     <ClInclude Include="movable_ent.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="res_mesh.h" />
+    <ClInclude Include="res_shader.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="shader_collection.h" />
@@ -52,7 +54,6 @@
     <ClInclude Include="file_utils.h" />
     <ClInclude Include="glm_utils.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="shader.h" />
     <ClInclude Include="mesh_types.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />

@@ -30,9 +30,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shader.h">
-      <Filter>include\shader_system</Filter>
-    </ClInclude>
     <ClInclude Include="file_utils.h">
       <Filter>include\FileIO</Filter>
     </ClInclude>
@@ -123,6 +120,10 @@
     <ClInclude Include="glm_master.h" />
     <ClInclude Include="Application.h">
       <Filter>include\Applications</Filter>
+    </ClInclude>
+    <ClInclude Include="res_mesh.h" />
+    <ClInclude Include="res_shader.h">
+      <Filter>include\shader_system</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
