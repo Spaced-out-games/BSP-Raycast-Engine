@@ -6,9 +6,10 @@
 struct Client
 {
 	level_editor_controller controller;
-	ent_camera* camera;
+	ent_camera* camera = nullptr;
 	Client()
 	{
-		
+		camera = new ent_camera();
+		controller.mControlledEntity = camera;
 	}
 };
