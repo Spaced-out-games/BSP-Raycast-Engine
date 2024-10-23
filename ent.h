@@ -74,9 +74,9 @@ struct ent {
     virtual ~ent() = default;              // Virtual destructor
 
     // Delete copy constructor and copy assignment operator
-    ent(const ent&) = delete;
+    ent(const ent&) = default;
     // Disable copying
-    ent& operator=(const ent&) = delete;   // Disable copy assignment
+    ent& operator=(const ent&) = default;   // Disable copy assignment
 
 
     // Default move constructor and move assignment operator
