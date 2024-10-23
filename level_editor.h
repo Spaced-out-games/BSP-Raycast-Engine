@@ -6,8 +6,9 @@
 #include "ent.h"
 #include <SDL.h>
 #include "glm_master.h"
+#include "client.h"
 
-IMPORT_GLOBALS
+extern Globals globals;
 
 void FocusConsoleWindow() {
     // Functionality to focus on console window can be implemented here
@@ -20,7 +21,7 @@ void FocusSDLWindow(SDL_Window* sdlWindow) {
     SDL_RaiseWindow(sdlWindow);
 }
 
-class level_editor_app : public Application<char> {
+class level_editor_app : public Application {
 private:
     // Any private member variables can go here
 
@@ -28,19 +29,18 @@ public:
     SDL_Event events;
     std::string fps_counter;
     float timeAccumulator = 0.0f;
-    //basic_console console;
+    basic_console console;
     float previous_time = 0;
     //double currentTime = 0;
     float elapsed_time = 0.0;
-    level_editor_controller controller;
-    ent_camera camera;
     vec3 last_cam_pos;
     vec3 delta_cam_pos;
     bool input_to_imgui = 0;
-    std::vector<ent_brush> brushes;
+    ent_container<ent_brush>& brushes = globals.server->get_entity_container<ent_brush>();
+    //std::vector<ent_brush> ;
+    
 
-    level_editor_app(int argc, char** argv)
-        : Application<char>(), controller(&camera)//,console(custom_state)
+    level_editor_app(int argc, char** argv): Application()//,console(custom_state)
     {}
 
     void gui_tick(ImGuiContext& gui) override {
@@ -59,17 +59,17 @@ public:
         }
 
         if (input_to_imgui) {
-            //console.Draw("Console");
+            console.Draw("Console");
         }
     }
 
     void gl_tick() override {
 
         // Check for events
-        last_cam_pos = camera.get_position();
+        last_cam_pos = globals.current_client->camera->get_position();
 
         if (!input_to_imgui) {
-            controller.CheckContinuousInput();
+            globals.current_client->controller.CheckContinuousInput();
         }
 
         while (SDL_PollEvent(&events)) {
@@ -92,17 +92,17 @@ public:
 
             // Pass the event to the Controller
             //if (!input_to_imgui) {
-                controller.inputEvent(events);
+                globals.current_client->controller.inputEvent(events);
             //}
             //else {
             //    ImGui_ImplSDL2_ProcessEvent(&events);
             //}
         }
 
-        delta_cam_pos = last_cam_pos - camera.get_position();
+        delta_cam_pos = last_cam_pos - globals.current_client->camera->get_position();
 
-        // Update the Uniform Buffer of the camera
-        camera.update_UBO();
+        // Update the Uniform Buffer of the globals.current_client->camera
+        globals.current_client->camera->update_UBO();
 
         // Draw the brushes
         for (auto& brush : brushes) {
@@ -111,32 +111,33 @@ public:
 
         // Update time and delta time
         globals.t += getDeltaTime();
-        //camera.getUBO().set(offsetof(gl_globals, t), globals.t);
+        //globals.current_client->camera->getUBO().set(offsetof(gl_globals, t), globals.t);
 
 
-        //camera.getUBO().set(offsetof(gl_globals, dt), globals.dt);
+        //globals.current_client->camera->getUBO().set(offsetof(gl_globals, dt), globals.dt);
 
         globals.t += globals.dt; // Update global time
     }
 
     void bootstrap() override {
         brush_setup();
-
+        //globals.current_client->camera = &camera;
+        //globals.current_client->controller.mControlledEntity = &camera;
 
         //console.target_application = &(custom_state);
         //console.open = &(input_to_imgui);
 
-        // Initialized the camera / controller
+        // Initialized the globals.current_client->camera / controller
         //camController = new level_editor_controller();
-        camera.getUBO().init();
+        globals.current_client->camera->getUBO().init();
 
         // Bind it to slot 0
-        camera.getUBO().bindBase(0);
-        camera.set_position({ 10, 10, 0 });
-        camera.look_at(vec3(0, 0, 0));
+        globals.current_client->camera->getUBO().bindBase(0);
+        globals.current_client->camera->set_position({ 10, 10, 0 });
+        globals.current_client->camera->look_at(vec3(0, 0, 0));
 
         // Prepare the first brush
-        brushes.emplace_back();
+        brushes.emplace_back(vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0));
         brushes[0].prepare_for_draw();
 
         // Example for dynamic casting
