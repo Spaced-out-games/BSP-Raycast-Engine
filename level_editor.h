@@ -29,7 +29,7 @@ public:
     SDL_Event events;
     std::string fps_counter;
     float timeAccumulator = 0.0f;
-    Console console;
+    basic_console console;
     float previous_time = 0;
     //double currentTime = 0;
     float elapsed_time = 0.0;
@@ -107,9 +107,7 @@ public:
         globals.current_client->camera->update_UBO();
 
         // Draw the brushes
-        for (auto& brush : brushes) {
-            brush.draw();
-        }
+        draw_brushes();
 
         // Update time and delta time
         globals.t += getDeltaTime();
@@ -140,6 +138,10 @@ public:
 
         // Prepare the first brush
         brushes.emplace_back(vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0));
+        brushes.emplace_back(vec3(10.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+        brushes.emplace_back(vec3(20.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+        brushes.emplace_back(vec3(30.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+
         brushes[0].prepare_for_draw();
 
         // Example for dynamic casting
@@ -153,6 +155,7 @@ public:
 
         // Loop through existing brushes
         for (size_t i = 0; i < initial_size; ++i) {
+            brushes[i].prepare_for_draw();
             brushes[i].draw();
         }
     }
