@@ -12,8 +12,7 @@
 #include <iostream>
 #include <chrono>
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+
 
 
 // TODO:
@@ -27,7 +26,6 @@
 
 
 
-template <class state_t>
 class Application
 {
 public:
@@ -53,19 +51,19 @@ public:
     vec2& get_window_dimensions() { return globals.window_dimensions; }
 
     void set_window_dimensions(uvec2 new_dimensions);
-    void setCustomState(const state_t& state);
+
 
     ImGuiContext* get_gui() const;
 
     // State management
-    state_t& getCustomState();
+
 
     // Tick / bootstrapping methods
     virtual void bootstrap() { std::cout << "bootstrap\n"; }
     virtual void gl_tick() { std::cout << "tick\n"; }
     virtual void gui_tick(ImGuiContext& gui) {}
 
-    state_t custom_state;
+
     
     static Globals& get_globals() {
         return globals;
@@ -91,8 +89,7 @@ private:
 // Define the static member outside the class
 
 
-template <class state_t>
-Application<state_t>::Application() :
+Application::Application() :
     sdlWindow(nullptr),
     glContext(nullptr),
     vsync_enabled(false),
@@ -107,8 +104,7 @@ Application<state_t>::Application() :
     init_SDL();
 }
 
-template <class state_t>
-Application<state_t>::~Application()
+Application::~Application()
 {
     if (glContext)
     {
@@ -123,11 +119,10 @@ Application<state_t>::~Application()
     SDL_Quit();
 }
 
-template <class state_t>
-ImGuiContext* Application<state_t>::get_gui() const { return imgui_context; }
 
-template <class state_t>
-void Application<state_t>::init_SDL()
+ImGuiContext* Application::get_gui() const { return imgui_context; }
+
+void Application::init_SDL()
 {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -189,20 +184,17 @@ void Application<state_t>::init_SDL()
     std::cout << "SDL, OpenGL, and ImGui successfully initialized.\n";
 }
 
-template <class state_t>
-void Application<state_t>::quit()
+void Application::quit()
 {
     running = false;
 }
 
-template <class state_t>
-bool Application<state_t>::isRunning()
+bool Application::isRunning()
 {
     return running;
 }
 
-template <class state_t>
-int Application<state_t>::run()
+int Application::run()
 {
     bootstrap();
 
@@ -240,14 +232,13 @@ int Application<state_t>::run()
     return 0;
 }
 
-template <class state_t>
-SDL_GLContext& Application<state_t>::getContext()
+
+SDL_GLContext& Application::getContext()
 {
     return glContext;
 }
 
-template <class state_t>
-void Application<state_t>::set_window_dimensions(uvec2 new_dimensions)
+void Application::set_window_dimensions(uvec2 new_dimensions)
 {
     globals.window_dimensions.x = new_dimensions.x;
     globals.window_dimensions.y = new_dimensions.y;
@@ -255,18 +246,14 @@ void Application<state_t>::set_window_dimensions(uvec2 new_dimensions)
     glViewport(0, 0, globals.window_dimensions.x, globals.window_dimensions.y);
 }
 
-template <class state_t>
-SDL_Window* Application<state_t>::getWindow()
+SDL_Window* Application::getWindow()
 {
     return sdlWindow;
 }
 
-template <class state_t>
-void Application<state_t>::setCustomState(const state_t& state)
-{
-    custom_state = state;
-}
+
+
 
 #define IMPORT_GLOBALS extern Globals globals;
 
-#endif
+
