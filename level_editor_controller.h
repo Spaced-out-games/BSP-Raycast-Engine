@@ -36,6 +36,37 @@ public:
     bool receiving_input = false;
     bool marked_for_processing = false;
     std::string commands;
+
+
+    // Copy assignment operator
+    level_editor_controller& operator=(const level_editor_controller& other) {
+        if (this != &other) {  // Check for self-assignment
+            // Call the base class's assignment operator
+            ent_controller::operator=(other);
+
+            // Manually copy all members
+            lastMousePos = other.lastMousePos;
+            deltaMousePos = other.deltaMousePos;
+            vertical_sensitivity = other.vertical_sensitivity;
+            horizontal_sensitivity = other.horizontal_sensitivity;
+            move_speed = other.move_speed;
+            sprint_multiplier = other.sprint_multiplier;
+            current_speed = other.current_speed;
+            last_camera_pos = other.last_camera_pos;
+            delta_camera_pos = other.delta_camera_pos;
+            clip = other.clip;
+            receiving_input = other.receiving_input;
+            marked_for_processing = other.marked_for_processing;
+            commands = other.commands;
+
+            // Since deltaTime is a reference to globals.dt, it doesn't need to be re-assigned.
+            // The SDL state pointer is retrieved via SDL_GetKeyboardState, so we can keep the same pointer.
+            state = SDL_GetKeyboardState(nullptr);  // Safe to reinitialize if needed
+        }
+        return *this;
+    }
+
+
     //windowContent* window_content;  // Pointer to windowContent to avoid circular dependency
     //ent_camera camera;
 };
