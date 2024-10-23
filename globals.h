@@ -1,15 +1,23 @@
 #pragma once
 #include "glm_master.h"
 #include <GL/glew.h>
+#include "server.h"
 
+
+class Client;
+class ent_camera;
+class level_editor_controller;
+class ent_brush;
+#define server_t Server<ent_camera, level_editor_controller, ent_brush, Client>
 
 struct Globals {
+    server_t* server;
     float t; // Time
     float dt; // Delta time
     vec2 window_dimensions; // Window dimensions
-
+    Client* current_client;
     // Private constructor to prevent instantiation
-    Globals() : t(0.0f), dt(0.0f), window_dimensions(1920.0f, 1080.0f) {}
+    Globals();
 
 
     uint8_t r_rendermode;
@@ -54,4 +62,18 @@ struct gl_globals {
     float g;
 };
 
+#include "client.h"
+
+
+Globals::Globals() : t(0.0f), dt(0.0f), window_dimensions(1920.0f, 1080.0f)
+{
+    server = new server_t;
+    server->get_entity_container<Client>().emplace_back();
+    server->clients.push_back(Client());
+
+    current_client = &(server->clients[0]);
+}
+
 static Globals globals;
+
+//#define IMPORT_GLOBALS extern Globals globals;
