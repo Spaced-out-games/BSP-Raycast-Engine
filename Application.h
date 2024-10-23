@@ -64,9 +64,6 @@ public:
 
 
     
-    static Globals& get_globals() {
-        return globals;
-    }
 
 
     
