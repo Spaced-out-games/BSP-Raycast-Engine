@@ -6,15 +6,14 @@
 #include "Application.h"
 #include "ent.h"
 #include "movable_ent.h"
+//#include "globals.h"
+extern Globals globals;
 
-IMPORT_GLOBALS
 
 
 
-#include <SDL.h>
-#include <glm/vec2.hpp>
 
-class ent_3d_2a; // Forward declaration of ent_3d_2a
+
 
 class ent_controller : public ent {
 public:
