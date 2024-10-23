@@ -25,6 +25,8 @@ public:
     // Constructor that takes a pointer to an ent_3d_2a entity
     ent_controller(ent_3d_2a* controlledEntity) : mControlledEntity(controlledEntity), lastMousePosition{ 0, 0 } {}
 
+
+
     ~ent_controller() {}
 
     const char* get_name() const override
@@ -53,7 +55,22 @@ public:
         // Update window dimensions when the window is resized
         windowDimensions = { static_cast<unsigned int>(event.window.data1), static_cast<unsigned int>(event.window.data2) };
     }
+    // Copy assignment operator
+    ent_controller& operator=(const ent_controller& other) {
+        if (this != &other) {  // Check for self-assignment
+            // Copy basic data members
+            events = other.events;
+            isPollingEvents = other.isPollingEvents;
+            lastMousePosition = other.lastMousePosition;
+            mousePosition = other.mousePosition;
 
+            // Copy the pointer (shallow copy)
+            mControlledEntity = other.mControlledEntity;  // Shallow copy, decide if you need a deep copy.
+
+            // windowDimensions is a reference to globals.window_dimensions, so no reassignment is needed.
+        }
+        return *this;
+    }
     vec2 getMousePosition();
     vec2 getNormalizedMousePos();
     vec2 get_delta_mouse_pos();
