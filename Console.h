@@ -12,8 +12,9 @@
 #include <cmath>
 #define CONSOLE_ACCENT_CHAR '~'
 
+#define console_command_t std::function<void(Console&, std::string&)>
 
-/*
+
 //todo: 
         // exec <filename>
         // save <filename.brushlist>
@@ -42,7 +43,6 @@
             // std::vector<std::vector<uint8_t>> argument_types;
 
 
-        //};
 struct ConsoleArgument
 {
     std::string argument_content;
@@ -139,25 +139,24 @@ glm::vec3 parse_vec3(glm::vec3& offset, std::stringstream& stream)
 }
 
 
-template <typename Pawn>
+
+
 class Console;
 
-
-template <typename Pawn>
 struct ConsoleCommand {
-    std::function<void(Pawn*, Console<Pawn>&, std::string&)> func;
+    console_command_t func;
     std::string description = "No description available";
 
     // Default constructor
-    ConsoleCommand()
-        : func([](Pawn*, Console<Pawn>&, std::string&) {  }) {}
+    //ConsoleCommand()
+    //    : func([](Pawn*, Console<Pawn>&, std::string&) {  }) {}
 
     // Parameterized constructor
-    ConsoleCommand(std::function<void(Pawn*, Console<Pawn>&, std::string&)> f)
-        : func(std::move(f)) {}
+//    ConsoleCommand(console_command_t f)
+  //      : func(std::move(f)) {}
 
-    ConsoleCommand(std::function<void(Pawn*, Console<Pawn>&, std::string&)> f, std::string description)
-        : func(std::move(f)), description(description) {}
+    //ConsoleCommand(console_command_t, std::string&)> f, std::string description)
+      //  : func(std::move(f)), description(description) {}
 
     // Move constructor
     ConsoleCommand(ConsoleCommand&& other) noexcept
@@ -177,21 +176,18 @@ struct ConsoleCommand {
     ConsoleCommand& operator=(const ConsoleCommand&) = delete;
 
     // Method to execute with string input
-    void execute(Pawn* wc, Console<Pawn>& console, std::string& args) {
-        func(wc, console, args);
+    void execute(Console& console, std::string& args) {
+        func(console, args);
     }
 };
+// that's good for now
 
 
-//template <typename Pawn>
 class Console {
 public:
-    using Pawn = void;
-    static std::unordered_map<std::string, ConsoleCommand<Pawn>> commands;
-    static Pawn* target_application;
+    static std::unordered_map<std::string, ConsoleCommand> commands;
     bool* open;
-    Console(Pawn app_interface) {
-        target_application = &app_interface;
+    Console() {
         ClearLog();
         historyPos = -1;
         memset(inputBuf, 0, sizeof(inputBuf));
@@ -252,7 +248,7 @@ public:
         ImGui::PushItemWidth(-1);
         if (ImGui::InputText("Input", inputBuf, IM_ARRAYSIZE(inputBuf), ImGuiInputTextFlags_EnterReturnsTrue)) {
             std::string inputStr(inputBuf);
-            if (ExecuteCommand(inputStr))
+            if (false)//(ExecuteCommand(inputStr))
             {
                 AddLog(inputStr.c_str());
             }
@@ -267,31 +263,16 @@ public:
         ImGui::End();
     }
 
-    virtual bool ExecuteCommand(const std::string& commandLine) {
-        auto spaceIndex = commandLine.find(' ');
-        std::string command = commandLine.substr(0, spaceIndex);
-        std::string args = (spaceIndex != std::string::npos) ? commandLine.substr(spaceIndex + 1) : "";
 
-        auto it = commands.find(command);
-        if (it != commands.end()) {
-            
-            it->second.execute(target_application, *this, args); // Pass args as std::string
-            return 1;
-        }
-        else {
-            AddLog("ERROR: Command not found");
-            return 0;
-        }
+    /*
+    static void RegisterCommand(const std::string& name, console_command_t func) {
+        commands[name] = ConsoleCommand(func);
     }
-
-    static void RegisterCommand(const std::string& name, std::function<void(Pawn*, Console<Pawn>&, std::string&)> func) {
-        commands[name] = ConsoleCommand<Pawn>(func);
-    }
-    static void RegisterCommand(const std::string& name, std::function<void(Pawn*, Console<Pawn>&, std::string&)> func, std::string description) {
-        commands[name] = ConsoleCommand<Pawn>(func);
+    static void RegisterCommand(const std::string& name, console_command_t func, std::string description) {
+        commands[name] = ConsoleCommand(func);
         commands[name].description = description;
     }
-
+    */
     void print(const std::string& content) {
         log.emplace_back(content);
         scrollToBottom = true;
@@ -311,14 +292,13 @@ protected:
 };
 
 // Define the static member outside the class
-template <typename Pawn>
-std::unordered_map<std::string, ConsoleCommand<Pawn>> Console<Pawn>::commands;
 
-template <typename Pawn>
-Pawn* Console<Pawn>::target_application = nullptr;
+std::unordered_map<std::string, ConsoleCommand> Console::commands;
+
+
 
 // Usage with basic_console
-#include "windowContent.h"
+//#include "windowContent.h"
 
 class basic_console : public Console {
 public:
@@ -327,7 +307,7 @@ public:
     std::vector<std::string> recorded_commands;
     bool is_recording;
 
-    virtual bool ExecuteCommand(const std::string& commandLine) override {
+    virtual bool ExecuteCommand(const std::string& commandLine) {
         if (commandLine == "") { return 0; }
         auto spaceIndex = commandLine.find(' ');
         std::string command = commandLine.substr(0, spaceIndex);
@@ -341,7 +321,7 @@ public:
         auto it = commands.find(command);
         if (it != commands.end()) {
             AddLog(commandLine.c_str());
-            it->second.execute(target_application, *this, args);
+            it->second.execute(*this, args);
             return 1;
         }
         else {
@@ -350,10 +330,11 @@ public:
         return 0;
     }
 
-    basic_console(windowContent& app_interface) : Console<windowContent>(app_interface) {
+    basic_console()
+    {
         // Register commands
 
-        
+        /*
         RegisterCommand("record_script", [this](windowContent* wc, Console<windowContent>& console, std::string& args) {
             if (args == "start") {
                 is_recording = true;
@@ -371,7 +352,9 @@ public:
                 console.AddLog("Usage: record_script start|stop|clear");
             }
         }, "Starts or stops recording commands.\nUsage: record_script start|stop");
+        */
 
+        /*
         RegisterCommand("script_copy", [this](windowContent* wc, Console<windowContent>& console, std::string& args) {
             if (recorded_commands.empty()) {
                 console.AddLog("No commands recorded to copy.");
@@ -387,19 +370,26 @@ public:
             ImGui::SetClipboardText(combined_commands.c_str());
             console.AddLog("Copied recorded commands to clipboard.");
         }, "Copies the recorded commands to the clipboard.");
-        
+        */
+        /*
         RegisterCommand("exit", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             exit(64);
         }, "Exits the application.\nUsage: exit Y/N");
+        */
 
+        /*
         RegisterCommand("echo", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             console.AddLog(args.c_str());
         }, "Prints a message to this console\nUsage: echo <expression>");
+        */
 
+        /*
         RegisterCommand("clear", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             console.ClearLog();
         }, "Clears this console\nUsage: Clear");
+        */
 
+        /*
         RegisterCommand("add_brush", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
         std::stringstream argument_stream(args);
         glm::vec3 position = wc->camController->getPawn().getPosition();
@@ -415,27 +405,29 @@ public:
         wc->brushes[last_index].init(position, dimensions);
         //add_brush(position, dimensions);
         }, "Adds a brush to the scene with the specified location and dimensions\nUsage: add_brush 0 0 0 20 20 20");
+        */
 
-
-
+        /*
         RegisterCommand("move_speed", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             float speed;
         std::stringstream argument_stream(args);
         argument_stream >> speed;
         wc->camController->move_speed = speed;
         }, "Sets the default move speed of the camera\nUsage: move_speed 40");
+        */
 
+        /*
         RegisterCommand("sprint_speed_multiplier", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             float multiplier;
         std::stringstream argument_stream(args);
         argument_stream >> multiplier;
         wc->camController->sprint_multiplier = multiplier;
         }, "Sets the multplier that pressing 'shift' has on speed\nUsage: sprint_speed_multiplier 1.5");
+        */
 
-        RegisterCommand("return", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
-            wc->camController->marked_for_processing = false;
-        }, "Closes the console and returns to the editor\n Usage: return");
 
+
+        /*
         RegisterCommand("move_vertex", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             std::stringstream argument_stream(args);
         int& index = wc->selected_vertex_index;
@@ -446,7 +438,9 @@ public:
         brushes[wc->selected_brush_index].move_vertex(wc->selected_vertex_index, location);
         //console.AddLog("SYNTAX ERROR: move_vertex takes two arguments: <int> <float float float>");
         }, "Moves the vertex (defined by select_vertex) of the selected brush (defined by select_brush) to the specified location");
+        */
 
+        /*
         RegisterCommand("select_brush", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             std::stringstream argument_stream(args);
         int temp;
@@ -476,14 +470,18 @@ public:
         wc->camController->getPawn().setPosition(position);
         wc->camController->getPawn().setTarget(wc->camController->getPawn().getTarget() + delta);
         }, "Teleports the player to the specified location");
+        */
 
+        /*
         RegisterCommand("r_wireframe", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             bool use_wireframe;
         std::stringstream argument_stream(args);
         argument_stream >> use_wireframe;
         Brush::use_wireframe = use_wireframe;
         }, "toggles wireframe mode");
+        */
 
+        /*
         RegisterCommand("delete_brush", [this](windowContent* wc, Console<windowContent>& console, std::string& args) {
         std::string index_string;
         std::stringstream argument_stream(args);
@@ -515,8 +513,9 @@ public:
             //console.AddLog("Invalid brush index: " + std::to_string(index) + "; no brush deleted.");
         }
         }, "Deletes a brush");
-        
-        RegisterCommand("exec", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
+        */
+        /*
+        RegisterCommand("exec", [](console_command_t, std::string& args) {
             std::stringstream argument_stream(args);
             std::string filename;
             argument_stream >> filename;
@@ -531,7 +530,8 @@ public:
                 console.ExecuteCommand(line);
             }
         }, "Executes a .cfg file");
-        
+        */
+        /*
         RegisterCommand("help", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             if (console.commands.find(args) != console.commands.end()) {
                 console.AddLog(console.commands.at(args).description.c_str());
@@ -543,7 +543,8 @@ public:
 
             }
         }, "You don't have to scream at me!");
-
+        */
+        /*
         RegisterCommand("duplicate_brush", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             //exit(64);
             Brush& target_brush = wc->brushes[wc->selected_brush_index];
@@ -561,7 +562,8 @@ public:
             wc->selected_brush_index = target_index;
         //wc->brushes.push
         }, "Duplicates the selected brush and sets the selected brush to the new brush");
-
+        */
+        /*
         // Absolute positioning needs implemented
         RegisterCommand("move_brush", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             std::stringstream argument_stream(args);
@@ -603,10 +605,11 @@ public:
             target_brush.update_vertices(target_vertices);
 
         }, "Exits the application.\nUsage: exit Y/N");
-
+        */
+        /*
         RegisterCommand("set_mat", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             exit(64);
         }, "Sets the material of a face");
+        */
     }
 };
-*/
