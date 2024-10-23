@@ -12,36 +12,6 @@
 #include <cmath>
 #define CONSOLE_ACCENT_CHAR '~'
 
-
-//todo:
-        // exec <filename>
-        // save <filename.brushlist>
-        // load <filename.brushlist>
-        // compile <filename.bsp>
-        // optimize <start_seed> <end_seed>
-        // sleep <seconds>
-        // tp <position>
-        // lookat <position>
-        // noclip
-        // tp_brush <position>
-        //
-        // It might be better to structure commands into their own file.
-        //
-        //
-        // help (command)
-        //typedef struct console_command
-        //{
-            // The actual function
-            // std::function function;
-            // The name of the invoked function
-            // std::string convar_name;
-            // Description of the function
-            // std::string description;
-            // Defines the number of arguments there are for each overload
-            // std::vector<std::vector<uint8_t>> argument_types;
-
-
-        //};
 struct ConsoleArgument
 {
     std::string argument_content;
@@ -149,7 +119,7 @@ struct ConsoleCommand {
 
     // Default constructor
     ConsoleCommand()
-        : func([](Pawn*, Console<Pawn>&, std::string&) {  }) {}
+        : func([](Pawn*, Console<Pawn>&, std::string&) { /* No-op */ }) {}
 
     // Parameterized constructor
     ConsoleCommand(std::function<void(Pawn*, Console<Pawn>&, std::string&)> f)
@@ -182,10 +152,9 @@ struct ConsoleCommand {
 };
 
 
-//template <typename Pawn>
+template <typename Pawn>
 class Console {
 public:
-    using Pawn = void;
     static std::unordered_map<std::string, ConsoleCommand<Pawn>> commands;
     static Pawn* target_application;
     bool* open;
@@ -319,7 +288,7 @@ Pawn* Console<Pawn>::target_application = nullptr;
 // Usage with basic_console
 #include "windowContent.h"
 
-class basic_console : public Console {
+class basic_console : public Console<windowContent> {
 public:
 
 
@@ -377,14 +346,14 @@ public:
                 return;
             }
 
-            std::string combined_commands;
-            for (const auto& cmd : recorded_commands) {
-                combined_commands += cmd + "\n";
-            }
+        std::string combined_commands;
+        for (const auto& cmd : recorded_commands) {
+            combined_commands += cmd + "\n";
+        }
 
-            // Use ImGui's clipboard functionality
-            ImGui::SetClipboardText(combined_commands.c_str());
-            console.AddLog("Copied recorded commands to clipboard.");
+        // Use ImGui's clipboard functionality
+        ImGui::SetClipboardText(combined_commands.c_str());
+        console.AddLog("Copied recorded commands to clipboard.");
         }, "Copies the recorded commands to the clipboard.");
 
         RegisterCommand("exit", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
@@ -400,7 +369,7 @@ public:
         }, "Clears this console\nUsage: Clear");
 
         RegisterCommand("add_brush", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
-        std::stringstream argument_stream(args);
+            std::stringstream argument_stream(args);
         glm::vec3 position = wc->camController->getPawn().getPosition();
         glm::vec3 dimensions;
 
@@ -454,7 +423,7 @@ public:
         if (temp < 0 || temp >= wc->brushes.size()) {
             //invalid brush index
         }
-        },"Selects a brush in the scene");
+        }, "Selects a brush in the scene");
 
         RegisterCommand("select_vertex", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             std::stringstream argument_stream(args);
@@ -484,14 +453,14 @@ public:
         }, "toggles wireframe mode");
 
         RegisterCommand("delete_brush", [this](windowContent* wc, Console<windowContent>& console, std::string& args) {
-        std::string index_string;
+            std::string index_string;
         std::stringstream argument_stream(args);
 
         argument_stream >> index_string;
         if (index_string == "all")
         {
             size_t i = wc->brushes.size() - 1;
-            for (i =i; i > 0; i--)
+            for (i = i; i > 0; i--)
             {
                 wc->brushes[i].destroy();
                 wc->brushes.pop_back();
@@ -517,18 +486,18 @@ public:
 
         RegisterCommand("exec", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             std::stringstream argument_stream(args);
-            std::string filename;
-            argument_stream >> filename;
-            std::ifstream file(filename);
-            if (!file.is_open()) {
-                //console.AddLog("ERROR: Could not open file: " + filename);
-                return;
-            }
+        std::string filename;
+        argument_stream >> filename;
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            //console.AddLog("ERROR: Could not open file: " + filename);
+            return;
+        }
 
-            std::string line;
-            while (std::getline(file, line)) {
-                console.ExecuteCommand(line);
-            }
+        std::string line;
+        while (std::getline(file, line)) {
+            console.ExecuteCommand(line);
+        }
         }, "Executes a .cfg file");
 
         RegisterCommand("help", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
@@ -546,60 +515,60 @@ public:
         RegisterCommand("duplicate_brush", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             //exit(64);
             Brush& target_brush = wc->brushes[wc->selected_brush_index];
-            size_t target_index = wc->brushes.size();
-            wc->brushes.push_back({});
+        size_t target_index = wc->brushes.size();
+        wc->brushes.push_back({});
 
-            Brush& new_brush = wc->brushes[wc->brushes.size() - 1];
-            new_brush.init({0, 0, 0}, {0,0,0});
+        Brush& new_brush = wc->brushes[wc->brushes.size() - 1];
+        new_brush.init({ 0, 0, 0 }, { 0,0,0 });
 
-            new_brush.update_vertices(target_brush.get_vertices());
+        new_brush.update_vertices(target_brush.get_vertices());
 
-            //new_brush_vertices = target_brush.get_vertices();
+        //new_brush_vertices = target_brush.get_vertices();
 
-            //wc->brushes[target_index].update_vertices(target_brush.get_vertices());
-            wc->selected_brush_index = target_index;
+        //wc->brushes[target_index].update_vertices(target_brush.get_vertices());
+        wc->selected_brush_index = target_index;
         //wc->brushes.push
         }, "Duplicates the selected brush and sets the selected brush to the new brush");
 
         // Absolute positioning needs implemented
         RegisterCommand("move_brush", [](windowContent* wc, Console<windowContent>& console, std::string& args) {
             std::stringstream argument_stream(args);
-            Brush& target_brush = wc->brushes[wc->selected_brush_index];
-            glm::vec3 delta_position;
-            glm::vec3& origin = target_brush.get_origin();
-            ConsoleArgument x = parse_argument(argument_stream);
-            if (x.has_accent)
-            {
-                delta_position.x = x.as_float();
-            }
-            else
-            {
-                delta_position.x = 0;
-            }
-            ConsoleArgument y = parse_argument(argument_stream);
-            if (y.has_accent)
-            {
-                delta_position.y = y.as_float();
-            }
-            else
-            {
-                delta_position.y = 0;
-            }
-            ConsoleArgument z = parse_argument(argument_stream);
-            if (z.has_accent)
-            {
-                delta_position.z = z.as_float();
-            }
-            else
-            {
-                delta_position.z = 0;
-            }
-            std::vector<Brush_vertex_t>& target_vertices = target_brush.get_vertices();
-            for (int i = 0; i < 8; i++)
-            {
-                target_vertices[i].position += delta_position;
-            }
-            target_brush.update_vertices(target_vertices);
+        Brush& target_brush = wc->brushes[wc->selected_brush_index];
+        glm::vec3 delta_position;
+        glm::vec3& origin = target_brush.get_origin();
+        ConsoleArgument x = parse_argument(argument_stream);
+        if (x.has_accent)
+        {
+            delta_position.x = x.as_float();
+        }
+        else
+        {
+            delta_position.x = 0;
+        }
+        ConsoleArgument y = parse_argument(argument_stream);
+        if (y.has_accent)
+        {
+            delta_position.y = y.as_float();
+        }
+        else
+        {
+            delta_position.y = 0;
+        }
+        ConsoleArgument z = parse_argument(argument_stream);
+        if (z.has_accent)
+        {
+            delta_position.z = z.as_float();
+        }
+        else
+        {
+            delta_position.z = 0;
+        }
+        std::vector<Brush_vertex_t>& target_vertices = target_brush.get_vertices();
+        for (int i = 0; i < 8; i++)
+        {
+            target_vertices[i].position += delta_position;
+        }
+        target_brush.update_vertices(target_vertices);
 
         }, "Exits the application.\nUsage: exit Y/N");
 

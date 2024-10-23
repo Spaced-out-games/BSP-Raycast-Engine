@@ -29,7 +29,7 @@ public:
     SDL_Event events;
     std::string fps_counter;
     float timeAccumulator = 0.0f;
-    basic_console console;
+    Console console;
     float previous_time = 0;
     //double currentTime = 0;
     float elapsed_time = 0.0;
@@ -41,7 +41,9 @@ public:
     
 
     level_editor_app(int argc, char** argv): Application()//,console(custom_state)
-    {}
+    {
+        console.open = &input_to_imgui;
+    }
 
     void gui_tick(ImGuiContext& gui) override {
         
@@ -59,7 +61,7 @@ public:
         }
 
         if (input_to_imgui) {
-            console.Draw("Console");
+            console.Draw();
         }
     }
 
