@@ -39,7 +39,7 @@ class ent_camera: public ent_3d_2a
 		// need to implement these
 
 		virtual void init() override {};
-		virtual void tick() override {};
+		virtual void tick() override;
 		virtual void exec(const ent_command& command) override {};
 
 
@@ -79,6 +79,13 @@ void ent_camera::update_UBO()
 	//ubo.updateData(0, sizeof(mat4), glm::value_ptr(view_matrix));
 	//ubo.updateData(sizeof(mat4), sizeof(mat4), glm::value_ptr(perspective_matrix));
 }
+
+void ent_camera::tick()
+{
+	update_UBO();
+}
+
+
 void ent_camera::bind_UBO(GLuint program)
 {
 	GLuint uboIndex = glGetUniformBlockIndex(program, "CameraUBO");
