@@ -9,6 +9,7 @@
 #include <cstdlib>   // For std::strtol, std::strtof
 #include <cctype>    // For std::isspace
 #include <array>
+#include "glm_master.h"
 #include <cmath>
 #define CONSOLE_ACCENT_CHAR '~'
 
@@ -93,6 +94,7 @@ class Console;
 
 // ConsoleCommand struct
 struct ConsoleCommand {
+    //std::string hint;
     std::string description;
     console_command_t command;
 
@@ -216,11 +218,9 @@ public:
         }
     }
 
-    void RegisterCommand(const std::string& name, console_command_t func) {
-        commands[name] = ConsoleCommand("No description", func);
-    }
 
-    void RegisterCommand(const std::string& name, console_command_t func, const std::string& description) {
+
+    void RegisterCommand(const std::string& name ,const std::string& description = "No Description", console_command_t func = [](Console&, std::string&) {}) {
         commands[name] = ConsoleCommand(description, func);
     }
 
@@ -235,11 +235,79 @@ public:
     }
 };
 
+// define the convar struct here eventually
+
+
 // basic_console class
 class basic_console : public Console {
 public:
     std::vector<std::string> recorded_commands;
     bool is_recording;
 
-    basic_console() : is_recording(false) {}
+    basic_console();
+
+    bool ExecuteCommand(const std::string& commandLine) override;
 };
+
+bool basic_console::ExecuteCommand(const std::string& commandLine)
+{
+    if (commandLine == "") { return 0; }
+    auto spaceIndex = commandLine.find(' ');
+    std::string command = commandLine.substr(0, spaceIndex);
+    std::string args = (spaceIndex != std::string::npos) ? commandLine.substr(spaceIndex + 1) : "";
+
+    // If recording, append the command to the recorded_commands vector
+    if (is_recording) {
+        recorded_commands.push_back(commandLine);
+    }
+
+    auto it = commands.find(command);
+    if (it != commands.end()) {
+        AddLog(commandLine.c_str());
+        it->second.execute(*this, args);
+        return 1;
+    }
+    else {
+        AddLog("ERROR: Command not found");
+    }
+    return 0;
+}
+//#define console_command_t std::function<void(Console&, std::string&)>
+
+
+
+basic_console::basic_console()
+{
+    RegisterCommand("exit", "Exits the application", [](Console& console, std::string& args) {
+        std::cout << "Exiting application..." << std::endl;
+        exit(0);
+    });
+
+    RegisterCommand("echo", "Prints a message to the screen", [](Console& console, std::string& args) {
+        console.AddLog(args.c_str());
+    });
+
+    RegisterCommand("add_brush", "Prints a message to the screen", [](Console& console, std::string& args) {
+        std::stringstream argument_stream(args);
+        vec3 position = globals.current_client->camera->get_position();
+        
+
+        vec3 dimensions;
+        position = parse_vec3(position, argument_stream);
+        dimensions = parse_vec3(position, argument_stream);
+        size_t last_index = globals.server->get_entity_container<ent_brush>().size();
+
+
+        globals.server->get_entity_container<ent_brush>().emplace_back(position, dimensions);
+    });
+
+    RegisterCommand("r_wireframe", "Prints a message to the screen", [](Console& console, std::string& args) {
+        bool use_wireframe;
+        std::stringstream argument_stream(args);
+        argument_stream >> use_wireframe;
+        globals.set_render_mode(use_wireframe);
+        //Brush::use_wireframe = use_wireframe;
+
+    });
+
+}
