@@ -20,11 +20,10 @@
 // Make private setters that Application can alter through a proxy structure
 // Make public const getters
 
+
+
+
 #include "globals.h"
-
-
-
-
 
 class Application
 {
@@ -254,6 +253,6 @@ SDL_Window* Application::getWindow()
 
 
 
-#define IMPORT_GLOBALS extern Globals globals;
+
 
 
