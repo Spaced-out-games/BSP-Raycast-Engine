@@ -122,7 +122,7 @@ public:
         delete[] facedata;
     }
 
-    ent_brush() : ent_brush({ 0.0f,0.0f,0.0f }, { 1.0f,1.0f,1.0f }) {}
+    ent_brush() {}
 
     // Creates a cube by default
     ent_brush(const glm::vec3& start, const glm::vec3& stop) {
@@ -186,6 +186,10 @@ public:
     // Destructor
     ~ent_brush() {
         // Cleanup OpenGL resources
+
+    }
+    void destroy()
+    {
         glDeleteBuffers(1, &vertex_VBO);
         glDeleteBuffers(1, &solid_EBO);
         glDeleteBuffers(1, &face_SSBO);
