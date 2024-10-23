@@ -93,12 +93,12 @@ public:
             }
 
             // Pass the event to the Controller
-            //if (!input_to_imgui) {
+            if (!input_to_imgui) {
                 globals.current_client->controller.inputEvent(events);
-            //}
-            //else {
-            //    ImGui_ImplSDL2_ProcessEvent(&events);
-            //}
+            }
+            else {
+                ImGui_ImplSDL2_ProcessEvent(&events);
+            }
         }
 
         delta_cam_pos = last_cam_pos - globals.current_client->camera->get_position();
