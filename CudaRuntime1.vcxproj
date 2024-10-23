@@ -15,6 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ent_container.h" />
     <ClCompile Include="imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\backends\imgui_impl_sdl2.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -43,6 +44,7 @@
     <ClInclude Include="level_editor.h" />
     <ClInclude Include="level_editor_controller.h" />
     <ClInclude Include="movable_ent.h" />
+    <ClInclude Include="old_console.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="res_mesh.h" />
     <ClInclude Include="res_shader.h" />

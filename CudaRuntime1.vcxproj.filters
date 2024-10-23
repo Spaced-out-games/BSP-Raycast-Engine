@@ -28,6 +28,9 @@
     <ClCompile Include="imgui\backends\imgui_impl_opengl3.cpp">
       <Filter>include\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="ent_container.h">
+      <Filter>include\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_utils.h">
@@ -125,6 +128,7 @@
     <ClInclude Include="res_shader.h">
       <Filter>include\shader_system</Filter>
     </ClInclude>
+    <ClInclude Include="old_console.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
